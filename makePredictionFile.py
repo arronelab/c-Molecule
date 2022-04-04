@@ -16,14 +16,12 @@ import ast
 from Bio import PDB, SeqIO
 from Bio.SeqUtils import seq1 
 
-def write_sh_file(project_name, 
+def write_sh_file(project_name,fit_steps,no_mols,
                   preprocessed_data_dir = "newFitData/human_SMARCAL1",
                   fingerprint_path = "newFitData/human_SMARCAL1/fingerPrint.dat", 
                   coords_path = "newFitData/human_SMARCAL1/coordinates.dat", 
                   contacts_path = None, 
-                  fixed_sections_path = None, 
-                  fit_steps,
-                  no_mols
+                  fixed_sections_path = None                 
                   ):
     """Writes the config shell script based on parameters given by the user on data upload.
 
