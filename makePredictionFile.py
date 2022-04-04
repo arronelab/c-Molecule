@@ -7,6 +7,7 @@ Created on Mon Mar 28 10:20:51 2022
 """
 import urllib.request
 import os
+import sys
 import re
 import json
 import numpy as np
@@ -15,14 +16,14 @@ import ast
 from Bio import PDB, SeqIO
 from Bio.SeqUtils import seq1 
 
-def write_sh_file(project_name = input("Enter project name: "), 
+def write_sh_file(project_name, 
                   preprocessed_data_dir = "newFitData/human_SMARCAL1",
                   fingerprint_path = "newFitData/human_SMARCAL1/fingerPrint.dat", 
                   coords_path = "newFitData/human_SMARCAL1/coordinates.dat", 
                   contacts_path = None, 
                   fixed_sections_path = None, 
-                  fit_steps = input("Enter number of changes from input structure: "),
-                  no_mols = input("Enter number of outputs: ")
+                  fit_steps,
+                  no_mols
                   ):
     """Writes the config shell script based on parameters given by the user on data upload.
 
@@ -71,5 +72,5 @@ def write_sh_file(project_name = input("Enter project name: "),
     return output_filepath
 
 if __name__ == "__main__":
-    write_sh_file()
+    write_sh_file(project_name=sys.argv[1],fit_steps=sys.argv[2],no_mols=sys.argv[3])
     
