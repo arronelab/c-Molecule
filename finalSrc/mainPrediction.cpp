@@ -320,8 +320,9 @@ int main( int argc, const char* argv[] )
 	  ktlMolecule molCopy = mol;
 	  int indexCh = totalIndex-netIndex;
 	  molCopy.changeMoleculeSingleMulti(indexCh,i);
+    std::vector<double> ovelps = molCopy.checkOverlapWithRad(closestApproachDist); 
 	  bool cacaDist=molCopy.checkCalphas(i);
-	  if(cacaDist==false){
+	  if(cacaDist==false) && (ovelps.size()=0){
 	      mol = molCopy;
 	    }
 	  }
