@@ -322,9 +322,12 @@ int main( int argc, const char* argv[] )
 	  molCopy.changeMoleculeSingleMulti(indexCh,i);
     std::vector<double> ovelps = molCopy.checkOverlapWithRad(closestApproachDist); 
 	  bool cacaDist=molCopy.checkCalphas(i);
-	  if((cacaDist==false) && (ovelps.size()==0)){
-	      mol = molCopy;
+	  while((cacaDist==true) || (ovelps.size()>0)){
+        molCopy.changeMoleculeSingleMulti(indexCh,i);
+        ovelps = molCopy.checkOverlapWithRad(closestApproachDist); 
+	      cacaDist=molCopy.checkCalphas(i);
 	    }
+    mol = molCopy;
 	  }
       }
       k++;
