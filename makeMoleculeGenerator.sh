@@ -1,5 +1,5 @@
 #/bin/sh
-rm src/*.o
+rm finalSrc/*.o
 g++ -c -O3 -std=gnu++14 -o finalSrc/independentFunctions.o finalSrc/independentFunctions.cpp
 g++ -c -O3 -std=gnu++14 -o finalSrc/point.o  finalSrc/point.cpp
 g++ -c -O3 -std=gnu++14 -o finalSrc/polyHelix.o finalSrc/polyHelix.cpp 
