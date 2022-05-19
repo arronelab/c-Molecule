@@ -1,0 +1,8 @@
+#include <sstream>
+
+const char* doubleToChar(double &din){
+      stringstream ss;
+      ss<<din;
+      const char* str = ss.str().c_str();
+      return str;      	       
+}
