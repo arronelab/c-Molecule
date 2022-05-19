@@ -65,7 +65,7 @@ int main( int argc, const char* argv[] )
   std::cout<<argv[2]<<"\n";
   if(strcmp(argv[2],"no_initial_prediction")==0){
     // read in from sequernce and sc structure pred
-    std::cout<<"here?\n";
+    // std::cout<<"here?\n";
     mol.readInSequence(argv[1],rmin,rmax,lmin);
     // generate random start (with no overlap)
     //std::cout<<"here ?\n";
