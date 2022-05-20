@@ -306,7 +306,7 @@ int main( int argc, const char* argv[] )
     // select max number of steps
     // check for overlap
     // now  
-    std::cout<<k<<"\n";
+    //std::cout<<k<<"\n";
     int netIndex=0;
      for(int i=1;i<=noSections;i++){
       if(i>1){
