@@ -43,7 +43,7 @@ std::vector<point> ktlMolecule::getCoordinatesSection(int i){
 }
 
 int ktlMolecule::getSubsecSize(int sec){
-  // the minus 1 is becasue the labellingnumbers are 1,2,3 e.t.c but for chainList 1 is at index0
+ f // the minus 1 is becasue the labellingnumbers are 1,2,3 e.t.c but for chainList 1 is at index0
   return chainList[sec-1].second-chainList[sec-1].first+1;
 }
 
@@ -1969,12 +1969,11 @@ int ktlMolecule::getRandomMolecule(){
   for(int i=0;i<chainList.size();i++){
      std::cout<<"chain "<<i<<"\n";
     std::vector<std::pair<std::string,int> >::const_iterator first =nameSizeList.begin()+chainList[i].first;
-    std::vector<std::pair<std::string,int> >::const_iterator second =nameSizeList.begin()+chainList[i].second+1;   
+    std::vector<std::pair<std::string,int> >::const_iterator second =nameSizeList.begin()+chainList[i].second+1;
     std::vector<std::pair<std::string,int> > subns(first,second);
     point sp(0.0,0.0,0.0);
     bool suc=true;
     std::vector<std::vector<point> > submol = rmg.makeRandomMolecule(subns,sp,suc);
-    std::cout<<"HERE "<<i<<"\n";
     std::cout<<"made man\n?";
     std::vector<int> overLapList = checkOverlap(submol);
     std::vector<int> currOverLapList= overLapList;
