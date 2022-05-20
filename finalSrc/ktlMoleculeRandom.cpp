@@ -1972,7 +1972,7 @@ int ktlMolecule::getRandomMolecule(){
     std::vector<std::pair<std::string,int> >::const_iterator second =nameSizeList.begin()+chainList[i].second+1;   
     std::vector<std::pair<std::string,int> > subns(first,second);
     point sp(0.0,0.0,0.0);
-    bool suc=true;
+    bool suc=true;  
     std::vector<std::vector<point> > submol = rmg.makeRandomMolecule(subns,sp,suc);
     std::cout<<"HERE "<<i<<"\n";
     std::cout<<"made man\n?";
