@@ -70,7 +70,7 @@ int main( int argc, const char* argv[] )
     // generate random start (with no overlap)
     //std::cout<<"here ?\n";
     mol.getRandomMolecule();
-     std::cout<<" made random mol ?\n";
+     //std::cout<<" made random mol ?\n";
      // mol.writeMoleculeToFile("testMol.dat");
     // identify hydrophobic residues
     mol.getHydrophobicResidues();
@@ -128,7 +128,7 @@ int main( int argc, const char* argv[] )
   }
 
   // enforce any requested hyrdophobic covering
-  std::cout<<" any hydro aminos ? "<<internalHydrophicChecklist.size()<<"\n";
+  //std::cout<<" any hydro aminos ? "<<internalHydrophicChecklist.size()<<"\n";
   for(int i=0;i<internalHydrophicChecklist.size();i++){
     // start random genrator
     std::random_device rdev{};
@@ -316,7 +316,7 @@ int main( int argc, const char* argv[] )
       for(int j=0;j<mol.getSubsecSize(i)-1;j++){
 	int totalIndex = netIndex+j;
 	if((doAll==true) || (std::find(fixedSecList.begin(),fixedSecList.end(),totalIndex)!=fixedSecList.end())){
-	  std::cout<<" section "<<totalIndex<<" of unit "<<i<<" "<<" sub set number "<<totalIndex-netIndex<<" being altered "<<mol.getSubsecSize(i)<<"\n";
+	  //std::cout<<" section "<<totalIndex<<" of unit "<<i<<" "<<" sub set number "<<totalIndex-netIndex<<" being altered "<<mol.getSubsecSize(i)<<"\n";
 	  ktlMolecule molCopy = mol;
 	  int indexCh = totalIndex-netIndex;
 	  molCopy.changeMoleculeSingleMulti(indexCh,i);

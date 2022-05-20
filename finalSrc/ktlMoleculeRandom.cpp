@@ -1974,8 +1974,6 @@ int ktlMolecule::getRandomMolecule(){
     point sp(0.0,0.0,0.0);
     bool suc=true;  
     std::vector<std::vector<point> > submol = rmg.makeRandomMolecule(subns,sp,suc);
-    std::cout<<"HERE "<<i<<"\n";
-    std::cout<<"made man\n?";
     std::vector<int> overLapList = checkOverlap(submol);
     std::vector<int> currOverLapList= overLapList;
     std::random_device rdev{};
