@@ -62,7 +62,7 @@ int main( int argc, const char* argv[] )
    *************************************/
 
   ktlMolecule mol;
-  std::cout<<argv[2]<<"\n";
+  //std::cout<<argv[2]<<"\n";
   if(strcmp(argv[2],"no_initial_prediction")==0){
     // read in from sequernce and sc structure pred
     // std::cout<<"here?\n";
@@ -122,7 +122,7 @@ int main( int argc, const char* argv[] )
   std::vector<int> internalHydrophicChecklist;
   if(strcmp(argv[6],"none")==-1){
     for(const char* it=argv[6];*it;++it){
-      std::cout<<*it-'0'<<"\n";
+      //std::cout<<*it-'0'<<"\n";
       internalHydrophicChecklist.push_back(*it-'0');
     }
   }
@@ -297,7 +297,7 @@ int main( int argc, const char* argv[] )
   int k=0;
   int noSections = mol.noChains();
   int noScatterFitSteps=std::atoi(argv[8]);
-  std::cout<<"no chains "<<noSections<<" "<<noScatterFitSteps<<"\n";
+  //std::cout<<"no chains "<<noSections<<" "<<noScatterFitSteps<<"\n";
   while(k<noScatterFitSteps){
     // start random genrator
     std::random_device rdev{};

@@ -1967,7 +1967,7 @@ int ktlMolecule::getRandomMolecule(){
   coords.clear();
   int noOverLaps=0;
   for(int i=0;i<chainList.size();i++){
-     std::cout<<"chain "<<i<<"\n";
+     //std::cout<<"chain "<<i<<"\n";
     std::vector<std::pair<std::string,int> >::const_iterator first =nameSizeList.begin()+chainList[i].first;
     std::vector<std::pair<std::string,int> >::const_iterator second =nameSizeList.begin()+chainList[i].second+1;   
     std::vector<std::pair<std::string,int> > subns(first,second);
@@ -2510,7 +2510,7 @@ void ktlMolecule::changeMoleculeSingleCheckOverlap(){
 void ktlMolecule::writeMoleculeToFile(const char* filename){
   std::ofstream ofile;
   ofile.open(filename);
-  std::cout<<filename<<"\n";
+  //std::cout<<filename<<"\n";
   if(ofile.is_open()){
      for(int k=0;k<chainList.size();k++){
       for(int i=chainList[k].first;i<=chainList[k].second;i++){
