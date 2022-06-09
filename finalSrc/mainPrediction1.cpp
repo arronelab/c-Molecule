@@ -5,17 +5,16 @@
 
 
 /***********************************************
-  argv[1] scattering data file
-  argv[2] sequence file
-  argv[3] initial prediction coords  file (can be empty)
-  argv[4] paired distances file (can be empty)
-  argv[5] fixed sections file (again can be empty)
-  argv[6] crystal symmetry file again can be empty
-  argv[7] request to apply hydrophobic covering WITHIN monomers will be a list of sections on which to apply it. Will say none if not.
-  argv[8] request to apply hydrophobic covering BETWEEN monomers will be a list of pairs to try to hydropobically pair. Will say none if not.
-  argv[9] kmin
-  argv[10] kmax
-  argv[11] prediction file 
+  argv[1] sequence file
+  argv[2] initial prediction coords  file (can be empty)
+  argv[3] paired distances file (can be empty)
+  argv[4] fixed sections file (again can be empty)
+  argv[5] crystal symmetry file again can be empty
+  argv[6] request to apply hydrophobic covering WITHIN monomers will be a list of sections on which to apply it. Will say none if not.
+  argv[7] request to apply hydrophobic covering BETWEEN monomers will be a list of pairs to try to hydropobically pair. Will say none if not.
+  argv[8] kmin
+  argv[9] kmax
+  argv[10] prediction file 
  **********************************************/
 
 bool checkTransition(double &chiSqVal,double &chiSqCurr,double &uniformProb,int index,int &maxSteps){
@@ -64,9 +63,9 @@ int main( int argc, const char* argv[] )
    *************************************/
 
   ktlMolecule mol;
-  if(strcmp(argv[3],"no_initial_prediction")==0){
+  if(strcmp(argv[2],"no_initial_prediction")==0){
     // read in from sequernce and sc structure pred
-    mol.readInSequence(argv[2],rmin,rmax,lmin);
+    mol.readInSequence(argv[1],rmin,rmax,lmin);
     // generate random start (with no overlap)
     mol.getRandomMolecule();
     mol.writeMoleculeToFile("testMol.dat");
@@ -74,9 +73,9 @@ int main( int argc, const char* argv[] )
     mol.getHydrophobicResidues();
   }else{
     // read in from sequernce and sc structure pred
-    mol.readInSequence(argv[2],rmin,rmax,lmin);
+    mol.readInSequence(argv[1],rmin,rmax,lmin);
     // read in coordinates
-    mol.readInCoordinates(argv[3]);
+    mol.readInCoordinates(argv[2]);
     //here would be the filling in missing section routine
     // identify hydrophobic residues
     mol.writeMoleculeToFile("testMol.dat");
@@ -89,12 +88,12 @@ int main( int argc, const char* argv[] )
    
    ********************************************/
   std::vector<int> fixedSecList;
-   if(strcmp(argv[5],"none")==0){
+   if(strcmp(argv[4],"none")==0){
     // here we make no restrictions
     doAll =true;
   }else{
     std::ifstream fixedSecFile;
-    fixedSecFile.open(argv[5]);
+    fixedSecFile.open(argv[4]);
     std::string line;int index;
     if(fixedSecFile.is_open()){
       while(!fixedSecFile.eof()){
@@ -116,8 +115,8 @@ int main( int argc, const char* argv[] )
 
   //read in the internal hydrophobic list
   std::vector<int> internalHydrophicChecklist;
-  if(strcmp(argv[7],"none")==-1){
-    for(const char* it=argv[7];*it;++it){
+  if(strcmp(argv[6],"none")==-1){
+    for(const char* it=argv[6];*it;++it){
       internalHydrophicChecklist.push_back(*it-'0');
     }
   }
@@ -164,14 +163,16 @@ int main( int argc, const char* argv[] )
       k++;
     }
   }
-  mol.writeMoleculeToFile(argv[11]);
+  mol.writeMoleculeToFile(argv[10]);
 
   /******************************************
 
      read in the scattering and set up the scattering model
 
    ******************************************/
-  experimentalData ed(argv[1]);
+  /* 
+    experimentalData ed(argv[1]);
+  */
   
   /*
    ed.generatePR();
@@ -208,7 +209,7 @@ int main( int argc, const char* argv[] )
    *******************************************/
 
   // contact predictions or similar distance constraints
-  mol.loadContactPredictions(argv[4]);
+  mol.loadContactPredictions(argv[3]);
   
   // To do: crystal symmetry
   
@@ -248,8 +249,8 @@ int main( int argc, const char* argv[] )
   std::sort(solMolDists.begin(),solMolDists.end());
   // set the phases of the scattering model
   
-  double  kmin = std::atof(argv[9]);
-  double  kmax = std::atof(argv[10]);
+  double  kmin = std::atof(argv[8]);
+  double  kmax = std::atof(argv[9]);
   
   int noDistBins = int(1.1*std::ceil((kmax-kmin)*maxDist/3.14159265359));
   ed.setPhases(maxDist,kmin,kmax);
@@ -316,6 +317,6 @@ int main( int argc, const char* argv[] )
     }
   }
 
-  mol.writeMoleculeToFile(argv[11]);
+  mol.writeMoleculeToFile(argv[10]);
 }
       
