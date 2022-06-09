@@ -11,11 +11,13 @@
 class experimentalData{
  public:
   experimentalData(const char* scatterFile);
+  bool binDataCheck(double &dMax,double &qmin,double &qmax);
   int setPhases(double &dMax,double &kmin,double &kmax);
   double gaussianFixed(double &s);
   double gaussianHydFixed(double &s);
   double hydrationScatter(double &s);
   double fitToScattering(std::vector<double> &molDists,std::vector<double> &solDists,std::vector<double> &solMolDists,int &molSz,int &solSz);
+  double fitToScatteringMultiple(std::vector<std::vector<double> > &molDists,std::vector<std::vector<double> > &solDists,std::vector<std::vector<double> > &solMolDists,std::vector<int> &molSz,std::vector<int> &solSz);
   void writeScatteringToFile(std::vector<double> &molDists,std::vector<double> &solDists,std::vector<double> &solMolDists,int &molSz,int &solSz,const char* filename);
  private:
   std::vector<double> gaussianParams;

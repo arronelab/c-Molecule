@@ -3,13 +3,8 @@
 
 
 
-hydrationShellMinimal::hydrationShellMinimal(double RinInp,double RoutInp,double &RhyIn,int ntrivsIn,double helixRatioIn,int solventsPerLinkIn,const char* filename,std::vector<int> &molIndicies,int isRand,double &mutualDistCutOffIn,double &rmin,double &rmax,double &lmin){
-  mol.readInMolNmer(filename,molIndicies,isRand,rmin,rmax,lmin);
-  if(isRand==0){
-    std::cout<<" yopu have developed no non random routine for describing a molecule from the PDB\n";
-  }else{
-    mol.getRandomMolecule();
-  }
+hydrationShellMinimal::hydrationShellMinimal(ktlMolecule &molIn,double RinInp,double RoutInp,double &RhyIn,int ntrivsIn,double helixRatioIn,int solventsPerLinkIn,double &mutualDistCutOffIn,double &rmin,double &rmax,double &lmin){
+  mol = molIn;
   molsize = mol.molSize();
   nSize = mol.noSecSize();
   direcList.resize(molsize);
@@ -69,166 +64,9 @@ hydrationShellMinimal::hydrationShellMinimal(double RinInp,double RoutInp,double
 }
 
 
-
-void hydrationShellMinimal::setShellParams(double &RinInp,double &RoutInp,double &RhyIn,int &ntrivsIn,double &helixRatioIn,int &solventsPerLinkIn,const char* &filename,std::vector<int> &molIndicies,int &isRand,int &contactPred,double &mutualDistCutOffIn,double &rmin,double &rmax,double &lmin,int &isSeqOrPDB){
-  int ok=1;
-  if(isRand==0){
-      mol.readInMolNmerWithBackbone(filename,molIndicies,isRand,rmin,rmax,lmin);
-    //mol.getFrameForBackbone();
-  }else{
-    if(isSeqOrPDB==1){
-      // here we have secondary structure prediction from a pdb
-      std::cout<<"here what read?\n";
-      mol.readInMolNmer(filename,molIndicies,isRand,rmin,rmax,lmin);
-      if(contactPred ==0){
-     ok =mol.getRandomMolecule();
-     int l=0;
-     while(l<5&&ok>0){
-       ok =mol.getRandomMolecule();
-       l++;
-     }
-      }else{
-  	mol.getRandomMoleculeAllowOverlap();
-      }
-    }else{
-      // here we are reading from a sequence
-      mol.readInMolNmerSequence(filename,molIndicies,rmin,rmax,lmin);
-      std::cout<<"read in from sequence "<<contactPred<<"\n";
-      if(contactPred ==0){ 
-	ok =mol.getRandomMolecule();
-	int l=0;
-	while(l<5&&ok>0){
-	  ok =mol.getRandomMolecule();
-	  l++; 
-	}
-     std::cout<<"found original state ?\n";
-      }else{
-  	   std::cout<<"nah brah\n";
-      }
-    }
-  }
-  molsize = mol.molSize();
-  nSize = mol.noSecSize();
-  direcList.resize(molsize);
-  frameTan.resize(molsize);
-  frameNorm.resize(molsize);
-  frameBinorm.resize(molsize);
-  halfLengthList.resize(molsize);
-  midPointList.resize(molsize);
-  Pi = 3.1415926535897932384626;
-  edgesolset1.resize(3);
-  edgesolset2.resize(3);
-  edgesolset3.resize(3);
-  edgesolset4.resize(3);
-  middlesol.resize(3);
-  Rin = RinInp;Rout = RoutInp;Rhy =RhyIn;
-  allSegments.resize(molsize);
-  nameLst.resize(molsize);
-  lengthSec.resize(molsize);
-  allTruthTables.resize(molsize);
-  solventsPerLink = solventsPerLinkIn;
-  helixRatio = helixRatioIn;
-  ntrivs = ntrivsIn;
-  helixpts.resize(molsize);
-  cstepList.resize(molsize);
-  selfScatteringListSol.resize(molsize);
-  selfScatteringListMol.resize(molsize);
-  selfScatteringListSolMol.resize(molsize);
-  mutualScatteringListSol.resize(molsize);
-  mutualScatteringListMol.resize(molsize);
-  mutualScatteringListSolMol.resize(molsize);
-  for(int i=0;i<molsize;i++){
-    mutualScatteringListSol[i].resize(molsize);
-    mutualScatteringListMol[i].resize(molsize);
-    mutualScatteringListSolMol[i].resize(molsize);
-    std::vector<std::pair<double,int> > distPosList;
-    if(i<molsize-1){
-      for(int j=i+1;j<molsize;j++){
-      std::pair<double,int> p;
-      p.first = 1000000.0;
-      p.second = j;
-    	distPosList.push_back(p);
-    }
-      std::pair<std::vector<std::pair<double,int> >,int> minpr;
-      minpr.first = distPosList;
-      minpr.second =0;
-      minimumDistances.push_back(minpr);
-    }
-  }
-  hydrationChangeList.resize(molsize);
-  //declare the empty distances list
-  maxDistChange =0.0;
-  std::pair<double,double> maxPair=mol.getMaxPossibleLength();
-  maxdist=maxPair.first;
-  maxScatDist = maxPair.second;
-  mutualDistCutOff =mutualDistCutOffIn;
-  isTooClose= false;
+void hydrationShellMinimal::resetMol(ktlMolecule &molIn){
+  mol = molIn;
 }
-
-void hydrationShellMinimal::setShellParamsLenJ(double &RinInp,double &RoutInp,double &RhyIn,int &ntrivsIn,double &helixRatioIn,int &solventsPerLinkIn,const char* &filename,std::vector<int> &molIndicies,int &isRand,int &contactPred,double &mutualDistCutOffIn,double &rmin,double &rmax,double &lmin,const char *lenJFileName,int &WSeq){
-  if(WSeq==0){
-    mol.readInMolNmerAndCoordinates(filename,molIndicies,isRand,rmin,rmax,lmin);
-  }else{
-    mol.readInMolNmerSequenceWBackbone(filename,lenJFileName,molIndicies,rmin,rmax,lmin);
-  }
-  molsize = mol.molSize();
-  nSize = mol.noSecSize();
-  direcList.resize(molsize);
-  frameTan.resize(molsize);
-  frameNorm.resize(molsize);
-  frameBinorm.resize(molsize);
-  halfLengthList.resize(molsize);
-  midPointList.resize(molsize);
-  Pi = 3.1415926535897932384626;
-  edgesolset1.resize(3);
-  edgesolset2.resize(3);
-  edgesolset3.resize(3);
-  edgesolset4.resize(3);
-  middlesol.resize(3);
-  Rin = RinInp;Rout = RoutInp;Rhy =RhyIn;
-  allSegments.resize(molsize);
-  nameLst.resize(molsize);
-  lengthSec.resize(molsize);
-  allTruthTables.resize(molsize);
-  solventsPerLink = solventsPerLinkIn;
-  helixRatio = helixRatioIn;
-  ntrivs = ntrivsIn;
-  helixpts.resize(molsize);
-  cstepList.resize(molsize);
-  selfScatteringListSol.resize(molsize);
-  selfScatteringListMol.resize(molsize);
-  selfScatteringListSolMol.resize(molsize);
-  mutualScatteringListSol.resize(molsize);
-  mutualScatteringListMol.resize(molsize);
-  mutualScatteringListSolMol.resize(molsize);
-  for(int i=0;i<molsize;i++){
-    mutualScatteringListSol[i].resize(molsize);
-    mutualScatteringListMol[i].resize(molsize);
-    mutualScatteringListSolMol[i].resize(molsize);
-    std::vector<std::pair<double,int> > distPosList;
-    if(i<molsize-1){
-      for(int j=i+1;j<molsize;j++){
-      std::pair<double,int> p;
-      p.first = 1000000.0;
-      p.second = j;
-    	distPosList.push_back(p);
-    }
-      std::pair<std::vector<std::pair<double,int> >,int> minpr;
-      minpr.first = distPosList;
-      minpr.second =0;
-      minimumDistances.push_back(minpr);
-    }
-  }
-  hydrationChangeList.resize(molsize);
-  //declare the empty distances list
-  maxDistChange =0.0;
-  std::pair<double,double> maxPair=mol.getMaxPossibleLength();
-  maxdist=maxPair.first;
-  maxScatDist = maxPair.second;
-  mutualDistCutOff =mutualDistCutOffIn;
-  isTooClose= false;
-}
-
 
 
 point hydrationShellMinimal::getCentrePoint(int index,int subIndex){
@@ -531,9 +369,9 @@ int hydrationShellMinimal::getNScat(){
   return nscat;
 }
 
-void hydrationShellMinimal::resetMolecule(){
+/*void hydrationShellMinimal::resetMolecule(){
   mol.resetRandomMolecule();
-}
+  }*/
 
 void hydrationShellMinimal::makeInitialSegData(point &cp,point &T,point &N1,double &tm,int index,int &nseg){
   point N12 = T.cross(N1);
@@ -995,42 +833,47 @@ void hydrationShellMinimal::updateTruthTable(int &ind1,int &ind2,double &R){
 
 
 
+// void hydrationShellMinimal::overlapPodstruct(int i,int j,int inch,int jnch){
+//   //first check if any overlap could be possible (i.e) is the centre point distnace less than the sum of the haldd length
+//   point cp1 = midPointList[i];point cp2 = midPointList[j];
+//   // calculate the relevant minimum distances
+//   std::pair<std::vector<std::vector<double> >,std::pair<std::string,std::string> > nearAppParams;
+//   point T1 = direcList[i];point T2 = direcList[j];
+//   double tm1 = halfLengthList[i];double tm2 = halfLengthList[j];
+//   nearAppParams =getMinTvalsFiniteNew(cp1,cp2,T1,T2,tm1,tm2);
+//   bool isOverlap;
+//   if(nearAppParams.second.first == "edge"){
+//     bool isIn1 = checkIsIn2(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[0][0],nearAppParams.first[0][1],inch,jnch,Rout,Rout);
+//     bool isIn2 =  checkIsIn2(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[1][0],nearAppParams.first[1][1],inch,jnch,Rout,Rout);
+//     bool isIn3 = checkIsIn1(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[2][0],nearAppParams.first[2][1],inch,jnch,Rout,Rout);
+//     bool isIn4 = checkIsIn2(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[3][0],nearAppParams.first[3][1],inch,jnch,Rout,Rout);
+//     if(isIn1 == true || isIn2 ==true|| isIn3 ==true|| isIn4 ==true){
+//       isOverlap = true;
+//     }else{
+//       isOverlap = false;
+//     }
+//   }else{
+//     // middle overlap check
+//     point p1 = cp1 + T1*nearAppParams.first[0][0];
+//     point p2 = cp2 + T2*nearAppParams.first[0][1];
+//     double dist = p1.eDist(p2);
+//  	  minimumDistances[inch].first[jnch-inch-1].first = dist-2*Rout;  
+//     if(p1.eDist(p2)< 2*Rout){
+//       isOverlap = true;
+//     }else{
+//       isOverlap = false;
+//     }
+//   }
+//   if(isOverlap ==true){
+//     updateTruthTable(i,j,Rout);
+//     updateTruthTable(j,i,Rin);
+//   }
+// }
+
 void hydrationShellMinimal::overlapPodstruct(int i,int j,int inch,int jnch){
-  //first check if any overlap could be possible (i.e) is the centre point distnace less than the sum of the haldd length
-  point cp1 = midPointList[i];point cp2 = midPointList[j];
-  // calculate the relevant minimum distances
-  std::pair<std::vector<std::vector<double> >,std::pair<std::string,std::string> > nearAppParams;
-  point T1 = direcList[i];point T2 = direcList[j];
-  double tm1 = halfLengthList[i];double tm2 = halfLengthList[j];
-  nearAppParams =getMinTvalsFiniteNew(cp1,cp2,T1,T2,tm1,tm2);
-  bool isOverlap;
-  if(nearAppParams.second.first == "edge"){
-    bool isIn1 = checkIsIn2(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[0][0],nearAppParams.first[0][1],inch,jnch,Rout,Rout);
-    bool isIn2 =  checkIsIn2(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[1][0],nearAppParams.first[1][1],inch,jnch,Rout,Rout);
-    bool isIn3 = checkIsIn1(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[2][0],nearAppParams.first[2][1],inch,jnch,Rout,Rout);
-    bool isIn4 = checkIsIn2(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[3][0],nearAppParams.first[3][1],inch,jnch,Rout,Rout);
-    if(isIn1 == true || isIn2 ==true|| isIn3 ==true|| isIn4 ==true){
-      isOverlap = true;
-    }else{
-      isOverlap = false;
-    }
-  }else{
-    // middle overlap check
-    point p1 = cp1 + T1*nearAppParams.first[0][0];
-    point p2 = cp2 + T2*nearAppParams.first[0][1];
-    double dist = p1.eDist(p2);
- 	  minimumDistances[inch].first[jnch-inch-1].first = dist-2*Rout;  
-    if(p1.eDist(p2)< 2*Rout){
-      isOverlap = true;
-    }else{
-      isOverlap = false;
-    }
-  }
-  if(isOverlap ==true){
-    updateTruthTable(i,j,Rout);
-    updateTruthTable(j,i,Rin);
-  }
-}
+   updateTruthTable(i,j,Rout);
+   updateTruthTable(j,i,Rin);
+ }
 
 void hydrationShellMinimal::overlapPodstructJoined(int i,int j){
   updateTruthTable(i,j,Rout);
@@ -1041,14 +884,14 @@ void hydrationShellMinimal::allOverlap(){
   for(int i=0;i<molsize-1;i++){
     for(int j=i+1;j<molsize;j++){
       if(j==i+1){
-	    overlapPodstructJoined(i,j);
-       minimumDistances[i].first[0].first=-100000.0;
+	overlapPodstructJoined(i,j);
+	//minimumDistances[i].first[0].first=-100000.0;
       }else{
-	  overlapPodstruct(i,j,i,j);
+	overlapPodstruct(i,j,i,j);
       }
     }
   }
-  for(int i=0;i<molsize-1;i++){
+  /*for(int i=0;i<molsize-1;i++){
     std::sort(minimumDistances[i].first.begin(),minimumDistances[i].first.end(),[](const std::pair<double,int> &left, const std::pair<double,int> &right) {
     return left.first < right.first;
 });   
@@ -1064,9 +907,6 @@ void hydrationShellMinimal::allOverlap(){
       }
     }
     minimumDistances[i].second=k;
-  }
-  /*for(int i=0;i<minimumDistances[11].first.size();i++){
-    std::cout<<"test lengths "<<minimumDistances[11].first[i].first<<" "<<minimumDistances[11].first[i].second<<"\n";
     }*/
 }
 
@@ -1957,7 +1797,95 @@ void hydrationShellMinimal::getInitialScatterRT(int &nk,double &kmin,double &kma
 }
 
 
+void hydrationShellMinimal::solventMoleculeDistances(std::vector<double> &molSolDistances,std::vector<double> &solSolDistances){
+  // first find all solvent moelcule distances
+  for(int k=0;k<allSegments.size();k++){
+    for(int i=0;i<allSegments[k].size();i++){
+      for(int j=0;j<allSegments[k][0].size();j++){
+	bool overlapped = false;
+	std::vector<double> solMolPosDists;
+	for(int l=0;l<helixpts.size();l++){
+	  for(int m=0;m<helixpts[l].size();m++){
+	    // declare molpt
+	    if(k!=l){
+	      double dist =helixpts[l][m].eDist(allSegments[k][i][j]);
+	      if(dist<5.4){
+		overlapped=true;
+		//std::cout<<dist<<" "<<k<<" "<<i<<" "<<j<<" "<<l<<" "<<m<<"\n"; 
+	      }else{
+		solMolPosDists.push_back(dist);
+	      }
+	    }else{
+	       double dist =helixpts[l][m].eDist(allSegments[k][i][j]);
+	       solMolPosDists.push_back(dist);
+	    }
+	  }
+	}
+	if(overlapped==true){
+	  allTruthTables[k][i][j]=0;
+	}else{
+	  // this solvent is still in play, store its distances.
+	  if(solSolDistances.size()==0){
+	    solSolDistances= solMolPosDists;
+	  }else{
+	    solSolDistances.insert(solSolDistances.end(),solMolPosDists.begin(),solMolPosDists.end());
+	  }
+	}
+      }
+    }
+  }
+  for(int k=0;k<allSegments.size()-1;k++){
+    for(int i=0;i<allSegments[k].size();i++){
+      for(int j=0;j<allSegments[k][0].size();j++){
+	//std::cout<<allTruthTables[k][i][j]<<"\n";
+	if(allTruthTables[k][i][j]==1){
+	  for(int l=k+1;l<allSegments.size();l++){
+	    for(int m=0;m<allSegments[l].size();m++){
+	      for(int n=0;n<allSegments[l][0].size();n++){
+		if(allTruthTables[l][m][n]==1){
+		 double soldist = allSegments[l][m][n].eDist(allSegments[k][i][j]);
+		 //std::cout<<soldist<<"\n";
+		 if(soldist<Rin){
+		   allTruthTables[l][m][n]=0;
+		 }else{
+		   solSolDistances.push_back(soldist);
+		 }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+  std::cout<<"escape ? "<<molSolDistances.size()<<" "<<solSolDistances.size()<<"\n";
+  // now we check for solvent solvent distances *between* sections (not within a section)
+  
+}
 
+
+
+std::vector<std::vector<point> > hydrationShellMinimal::returnFlatSolList(){
+  solPtsFlat.clear();
+  int noflps =0;
+  for(int k=0;k<allSegments.size();k++){
+    std::vector<point> spts;
+    for(int i=0;i<allSegments[k].size();i++){
+      for(int j=0;j<allSegments[k][0].size();j++){
+	//std::cout<<i<<" "<<j<<" "<<k<<" "<<allTruthTables[k][i][j]<<"\n";
+	if(allTruthTables[k][i][j]==1){
+	  spts.push_back(allSegments[k][i][j]);
+	}
+      }
+    }
+    solPtsFlat.push_back(spts);
+    //noflps = noflps + spts.size();
+    //std::cout<<"in full segment "<<k<<" "<<spts.size()<<"\n";
+      //also add the helical molecules to the flat helix list
+  }
+  // std::cout<<"full calc "<<noflps<<"\n";
+  return solPtsFlat;
+}
 
 void hydrationShellMinimal::getFlatSolList(){
   solPtsFlat.clear();
@@ -3669,8 +3597,8 @@ void hydrationShellMinimal::changeMoleculeLocalSet(std::vector<int> &indicies,do
   mol.changeMoleculeLocalSet(indicies,variationSize);
 }
 
-void hydrationShellMinimal::changeMoleculeSingle(int &index,std::vector<std::vector<point> > &cdsIn){
-  mol.changeMoleculeSingle(index,cdsIn);
+void hydrationShellMinimal::changeMoleculeSingle(int &index,std::vector<std::vector<point> > &cdsIn,std::vector<std::pair<std::string,int> > &nameSizeSubList){
+  mol.changeMoleculeSingle(index,cdsIn,nameSizeSubList);
 }
 
 int hydrationShellMinimal::getSubsecSize(int sec){
@@ -3702,9 +3630,9 @@ double hydrationShellMinimal::getGlobalRadiusOfCurvature(){
   return mol.getGlobalRadiusOfCurvature();
 }
 
-double hydrationShellMinimal::getGlobalRadiusOfCurvatureBetweenSec(){
+/*double hydrationShellMinimal::getGlobalRadiusOfCurvatureBetweenSec(){
   return mol.getGlobalRadiusOfCurvatureBetweenSec();
-}
+}*/
 
 double hydrationShellMinimal::coiledCoilPotential(){
   return mol.coiledCoilPotential();

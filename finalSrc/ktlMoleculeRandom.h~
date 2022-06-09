@@ -86,6 +86,7 @@ public:
   double compareDistances(std::vector<std::vector<point> > &coords2);
   bool checkCalphas(std::vector<std::vector<point> > &coordsIn);
   bool checkCalphas();
+  bool checkCalphas(int &index);
   int getRandomMolecule();
   void getRandomMoleculeAllowOverlap();
   int getRandomMoleculeReset();

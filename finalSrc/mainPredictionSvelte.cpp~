@@ -62,7 +62,8 @@ int main( int argc, const char* argv[] )
 
   /*************************************
   
-   determine initial model 
+   determine initial model: Two options no initial prediction, we must generate a structure
+   or some initial structure provided. Actually we need a half-half option
 
    *************************************/
 
@@ -101,6 +102,7 @@ int main( int argc, const char* argv[] )
     // here we make no restrictions
     doAll =true;
   }else{
+     //here a file with a list of the sections to be varied is provided
     std::ifstream fixedSecFile;
     fixedSecFile.open(argv[5]);
     std::string line;int index;
@@ -119,7 +121,7 @@ int main( int argc, const char* argv[] )
   
   /*********************************************
    
-   check if we need to apply hydrophobic covering
+    Read in the hydrophobic amino acids, we don't need them right now but we will
    
    ********************************************/
 
@@ -132,56 +134,7 @@ int main( int argc, const char* argv[] )
     }
   }
 
-  // enforce any requested hyrdophobic covering
-  std::cout<<" any hydro aminos ? "<<internalHydrophicChecklist.size()<<"\n";
-  for(int i=0;i<internalHydrophicChecklist.size();i++){
-    // start random genrator
-    std::random_device rdev{};
-    std::default_random_engine generator1{rdev()};
-    std::uniform_real_distribution<double> distributionR(0.0,1.0);
-    // select max number of steps
-    int noHydrationCoverSteps=100;
-    // get initial hydration value first choose no of neighbours to check for nearest distances
-    int noNeighbours =10;
-    std::cout<<"here a ?\n";
-    double  currGlobalRad = mol.getGlobalRadiusOfCurvatureWithinSec(internalHydrophicChecklist[i],noNeighbours);
-    double globalRadFit = 0.01*(currGlobalRad-7.5)*(currGlobalRad-7.5);
-    std::vector<double> ovelps = mol.checkOverlapWithRad(closestApproachDist,internalHydrophicChecklist[i]); 
-    double distSum=0.0;
-    for(int l=0;l<ovelps.size();l++){
-      distSum = distSum +  std::abs(closestApproachDist-ovelps[l]);
-    }   
-    globalRadFit =globalRadFit + 0.01*distSum;
-    std::cout<<"initial "<<currGlobalRad<<" "<<globalRadFit<<"\n";
-    int k=0;
-    // now  
-    while(k<noHydrationCoverSteps && globalRadFit>0.0001){
-      std::cout<<k<<" "<<currGlobalRad<<" "<<globalRadFit<<" "<<mol.getSubsecSize(internalHydrophicChecklist[i])<<"\n";
-      for(int j=0;j<mol.getSubsecSize(internalHydrophicChecklist[i]);j++){
-	ktlMolecule molCopy = mol;
-	molCopy.changeMoleculeSingleMulti(j,internalHydrophicChecklist[i]);
-	double newGlobalRad = molCopy.getGlobalRadiusOfCurvatureWithinSec(internalHydrophicChecklist[i],noNeighbours); 
-        std::vector<double> ovelps = molCopy.checkOverlapWithRad(closestApproachDist,internalHydrophicChecklist[i]);   
-	double newGlobalRadFit = 0.01*(newGlobalRad-7.5)*(newGlobalRad-7.5);
-        double distSum=0.0;
-        for(int l=0;l<ovelps.size();l++){
-	  distSum = distSum + std::abs(closestApproachDist-ovelps[l]);
-	}   
-        newGlobalRadFit =newGlobalRadFit + 0.01*distSum;
-        //std::cout<<j<<" "<<currGlobalRad<<" "<<newGlobalRadFit<<" "<<globalRadFit<<"\n";
-        double uProb = distributionR(generator1);
-	if(checkTransition(newGlobalRadFit,globalRadFit,uProb,k,noHydrationCoverSteps)){
-	  currGlobalRad = newGlobalRad;
-	  globalRadFit=  newGlobalRadFit;       
-	  mol=molCopy;
-	}
-      }
-      k++;
-    }
-  }
   
-  mol.writeMoleculeToFile(argv[12]);
-
   /******************************************
 
      read in the scattering and set up the scattering model
@@ -189,10 +142,7 @@ int main( int argc, const char* argv[] )
    ******************************************/
 
   experimentalData ed(argv[1]);
-  
-  /*
-   ed.generatePR();
-   */
+
 
   /*************************************************
 
@@ -206,10 +156,12 @@ int main( int argc, const char* argv[] )
   int ntrivs=6;
   double helixRatio=1.0;
   int solventsPerLink =1;
+
+  // call the hydration shell code
   
   hydrationShellMinimal hydrationShell(mol,Rin,Rout,RShell,ntrivs,helixRatio,solventsPerLink,closestApproachDist,rmin,rmax,lmin);
 
-  // generate the hydration shell
+  // generate the initial hydration shell
   
   hydrationShell.tubeParamList();
   hydrationShell.constructInitialState();
@@ -220,14 +172,14 @@ int main( int argc, const char* argv[] )
   
   /********************************************
 
-     load in additional information
+     load in additional information, contact predictions, bonds, e.t.c This will be important
 
    *******************************************/
 
   // contact predictions or similar distance constraints
   mol.loadContactPredictions(argv[4]);
   
-  // To do: crystal symmetry
+  // To do: crystal symmetry (may well now be provided)
   
 
   /*******************************************
@@ -311,7 +263,7 @@ int main( int argc, const char* argv[] )
     // select max number of steps
     // check for overlap
     // now  
-    std::cout<<k<<" "<<scatterFit<<" "<<distSumCurr<<"\n";
+    std::cout<<k<<" "<<scatterFit<<"\n";
     int netIndex=0;
     for(int i=1;i<=noSections;i++){
       if(i>1){
@@ -321,7 +273,7 @@ int main( int argc, const char* argv[] )
       for(int j=0;j<mol.getSubsecSize(i)-1;j++){
 	int totalIndex = netIndex+j;
 	if((doAll==true) || (std::find(fixedSecList.begin(),fixedSecList.end(),totalIndex)!=fixedSecList.end())){
-	  //std::cout<<" section "<<totalIndex<<" of unit "<<i<<" "<<" sub set number "<<totalIndex-netIndex<<" being altered "<<mol.getSubsecSize(i)<<"\n";
+	  std::cout<<" section "<<totalIndex<<" of unit "<<i<<" "<<" sub set number "<<totalIndex-netIndex<<" being altered "<<mol.getSubsecSize(i)<<"\n";
 	  ktlMolecule molCopy = mol;
 	  int indexCh = totalIndex-netIndex;
 	  molCopy.changeMoleculeSingleMulti(indexCh,i);
@@ -348,11 +300,10 @@ int main( int argc, const char* argv[] )
 	      std::sort(molDistsCopy.begin(),molDistsCopy.end());
 	      // get solvent-molecule distances
 	      maxDist = solDistsCopy[solDistsCopy.size()-1];
-	      std::vector<double> solMolDistsCopy = molCopy.solMolDists(solpts);
+	      std::vector<double> solMolDistsCopy = mol.solMolDists(solpts);
 	      std::sort(solMolDistsCopy.begin(),solMolDistsCopy.end());
 	      //new scattering
 	      int newNoDistBins = int(1.1*std::ceil((kmax-kmin)*maxDist/3.14159265359));
-	      std::cout<<"binsy "<<newNoDistBins<<" "<<noDistBins<<"\n";
 	      if(newNoDistBins!= noDistBins){
 		ed.setPhases(maxDist,kmin,kmax);
 	      }
@@ -368,7 +319,7 @@ int main( int argc, const char* argv[] )
 	      }
 	      //std::cout<<newScatterFit<<" "<<0.01*distSum<<"\n";
 	      double contacPredPen=molCopy.getLennardJonesContact();
-	      std::cout<<"compsize "<<maxDist<<" "<<newScatterFit<<" "<<contacPredPen<<"\n";
+	      //std::cout<<"compsize "<<newScatterFit<<" "<<contacPredPen<<"\n";
 	      newScatterFit =newScatterFit + distSum;
 	      // finally add contract prediction value
 	      newScatterFit =newScatterFit + contacPredPen;
@@ -381,14 +332,13 @@ int main( int argc, const char* argv[] )
 		solMolDists = solMolDistsCopy;
 		noSol = noSolCopy;
 		distSumCurr =distSum;
-		noDistBins=newNoDistBins;
 	      }
 	    }
 	  }
 	}
       }
+      k++;
     }
-    k++;
   }
   
    mol.writeMoleculeToFile(argv[12]);

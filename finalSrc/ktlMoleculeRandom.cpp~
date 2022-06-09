@@ -1,4 +1,5 @@
 
+
 #include "ktlMoleculeRandom.h"
 
 ktlMolecule::ktlMolecule(){
@@ -721,7 +722,9 @@ void ktlMolecule::readInSequence(const char* filename,double &rmin,double &rmax,
 	      for(int j=0;j<aminoType.size();j++){
 		aminoTypeSub.push_back(aminoType[j]);
 		currSize++;
-		if ((((aminoType[j]=="G" || aminoType[j]=="P")&& (j>2 && j<(aminoType.size()-3))) &&currSize>3) || (j==aminoType.size()-1) ){
+		//helix breaker, currently removed
+		//if ((((aminoType[j]=="G" || aminoType[j]=="P")&& (j>2 && j<(aminoType.size()-3))) &&currSize>3) || (j==aminoType.size()-1) ){
+		if(j==aminoType.size()-1){
 		  std::pair<std::string,int> stpr;
 		  stpr.first = prevType;stpr.second = j-currLower+1;
 		  currLower=j+1;
@@ -730,7 +733,7 @@ void ktlMolecule::readInSequence(const char* filename,double &rmin,double &rmax,
 		  distChanges.push_back(0.0);
 		  aminoTypeSub.clear();
 		  currSize=0;
-		}
+		  }
 	      }
 	      prevType=type;
 	      aminoType.clear();
@@ -1231,6 +1234,32 @@ void ktlMolecule::getHydrophobicResidues(){
     }
   }
 }
+
+std::vector<double> ktlMolecule::getHydrophobicDistance(std::vector<std::vector<point> > &solventList,double &maxSolDist){
+  std::vector<double> meanHydroAminoDists;
+  for(int i=0;i<hydroPhobicList.size();i++){
+    std::pair<int,int> pr = hydroPhobicList[i];
+    point coord = coords[pr.first][pr.second];
+    double solDist = 0.0;
+    int noDistances=0;
+    for(int k=0;k<solventList.size();k++){
+      for(int l=0;l<solventList[k].size();l++){
+	double sddist = coord.eDist(solventList[k][l]);
+	if(sddist<maxSolDist){
+	  solDist = solDist + sddist;
+	  noDistances++;
+	}
+      }
+    }
+    if(noDistances>0){
+      solDist = solDist/double(noDistances);
+    }
+    //std::cout<<solDist<<" "<<noDistances<<"\n";
+    meanHydroAminoDists.push_back(double(noDistances)/double(hydroPhobicList.size()));
+  }
+  return meanHydroAminoDists;
+}
+
 
 void ktlMolecule::getCoiledCoilResidues(){
   for(int i=0;i<aminoList.size();i++){
@@ -2228,8 +2257,7 @@ void ktlMolecule::changeMoleculeSingleMulti(int &index,int secIn){
   std::vector<std::vector<point> > subcoords(firstc,secondc);
   bool suc=true;
   if(index<subcoords.size()-2){
-    // // check for repeat helic
-    es
+    // // check for repeat heliced
     if(subns[index].first=="loop"&&subns[index+1].first=="Helix"&&subns[index+2].first=="Helix"){
       //change loo then encounter repeat helices
        //change helix and encounter repreat helices

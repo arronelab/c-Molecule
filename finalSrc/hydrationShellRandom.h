@@ -79,6 +79,7 @@ public:
    void mutualScatteringAllRT(int &nscat,double &kmin,double &kmax,int index);
    void getAllScatterRT(int &nscat,double &kmin,double &kmax);
    void getFlatSolList();
+   void solventMoleculeDistances(std::vector<double> &molSolDistances,std::vector<double> &solSolDistances);
    std::vector<std::vector<point> > returnFlatSolList();
    std::vector<double> flattenVector(std::vector<std::vector<std::vector<double> > > &vec);
    std::vector<int> binDistancesMolecule();

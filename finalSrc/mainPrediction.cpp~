@@ -67,14 +67,16 @@ int main( int argc, const char* argv[] )
    *************************************/
 
   ktlMolecule mol;
+  std::cout<<argv[3]<<"\n";
   if(strcmp(argv[3],"no_initial_prediction")==0){
     // read in from sequernce and sc structure pred
+    std::cout<<"here?\n";
     mol.readInSequence(argv[2],rmin,rmax,lmin);
     // generate random start (with no overlap)
     //std::cout<<"here ?\n";
     mol.getRandomMolecule();
      std::cout<<" made random mol ?\n";
-    mol.writeMoleculeToFile("testMol.dat");
+     // mol.writeMoleculeToFile("testMol.dat");
     // identify hydrophobic residues
     mol.getHydrophobicResidues();
   }else{
@@ -84,9 +86,10 @@ int main( int argc, const char* argv[] )
     mol.readInCoordinates(argv[3]);
     //here would be the filling in missing section routine
     // identify hydrophobic residues
-    mol.writeMoleculeToFile("testMol.dat");
+    //mol.writeMoleculeToFile("testMol.dat");
     mol.getHydrophobicResidues();
   }
+  
   bool doAll = false;
   /*********************************
    
@@ -212,7 +215,7 @@ int main( int argc, const char* argv[] )
   hydrationShell.constructInitialState();
   hydrationShell.allOverlap();
 
-  hydrationShell.writeHydrationShellToFile("testLyzScat.dat");
+  // hydrationShell.writeHydrationShellToFile("testLyzScat.dat");
   
   
   /********************************************
@@ -240,7 +243,7 @@ int main( int argc, const char* argv[] )
 
   molDists = mol.getDistSet();
   int molSize = mol.getNoAminos();
-  std::cout<<"mol size? "<<molSize<<" "<<molDists.size()<<"\n";
+  // std::cout<<"mol size? "<<molSize<<" "<<molDists.size()<<"\n";
   std::sort(molDists.begin(),molDists.end());
    
   // get solvent molecules
@@ -268,9 +271,11 @@ int main( int argc, const char* argv[] )
   
   int noDistBins = int(1.1*std::ceil((kmax-kmin)*maxDist/3.14159265359));
   ed.setPhases(maxDist,kmin,kmax);
+  
   double scatterFit = ed.fitToScattering(molDists,solDists,solMolDists,molSize,noSol);
   //check for overlaps
   std::cout<<"inital scatter "<<scatterFit<<"\n";
+
   double distSumCurr=0.0;
   for(int l=0;l<overlapDists.size();l++){
     distSumCurr = distSumCurr + std::exp(std::abs(closestApproachDist-overlapDists[l]))-1.0;
@@ -288,6 +293,11 @@ int main( int argc, const char* argv[] )
   
   ******************************************************************/
   ed.writeScatteringToFile(molDists,solDists,solMolDists,molSize,noSol,argv[13]);
+
+  /****************************************************************************
+    
+    Main algorithm 
+   ***************************************************************************/
   
   int k=0;
   int noSections = mol.noChains();
@@ -311,13 +321,13 @@ int main( int argc, const char* argv[] )
       for(int j=0;j<mol.getSubsecSize(i)-1;j++){
 	int totalIndex = netIndex+j;
 	if((doAll==true) || (std::find(fixedSecList.begin(),fixedSecList.end(),totalIndex)!=fixedSecList.end())){
-	  //std::cout<<" section "<<totalIndex<<" being altered "<<mol.getSubsecSize(i)<<"\n";
+	  std::cout<<" section "<<totalIndex<<" of unit "<<i<<" "<<" sub set number "<<totalIndex-netIndex<<" being altered "<<mol.getSubsecSize(i)<<"\n";
 	  ktlMolecule molCopy = mol;
-	  molCopy.changeMoleculeSingleMulti(totalIndex,i);
+	  int indexCh = totalIndex-netIndex;
+	  molCopy.changeMoleculeSingleMulti(indexCh,i);
 	  bool cacaDist= molCopy.checkCalphas(i);
-	  //std::cout<<"fail a jump (bitches?) "<<cacaDist<<"\n";
 	  if(cacaDist==false){
-	    // new hyrdation shell 
+	    // new hyrdation shell
 	    hydrationShellMinimal hydrationShellCopy(molCopy,Rin,Rout,RShell,ntrivs,helixRatio,solventsPerLink,closestApproachDist,rmin,rmax,lmin);
 	    // generate the hydration shell
 	    hydrationShellCopy.tubeParamList();
@@ -326,49 +336,51 @@ int main( int argc, const char* argv[] )
 	    std::vector<std::vector<point> > solptsCopy = hydrationShellCopy.returnFlatSolList();
 	    std::vector<double> solDistsCopy = molCopy.getExactDistSet(solptsCopy);
 	    std::sort(solDistsCopy.begin(),solDistsCopy.end());
-	    int noSolCopy=0;
-	    for(int i=0;i<solptsCopy.size();i++){
-	      noSolCopy = noSolCopy + solptsCopy[i].size();
-	    }
-	    // get moelcule distances
-	    std::vector<double> molDistsCopy;
-	    std::vector<double> ovelps = molCopy.checkOverlapWithRad(closestApproachDist);   
-	    molDistsCopy = molCopy.getDistSet();
-	    std::sort(molDistsCopy.begin(),molDistsCopy.end()); 
-	    // get solvent-molecule distances
-	    maxDist = solDistsCopy[solDistsCopy.size()-1];
-	    std::vector<double> solMolDistsCopy = mol.solMolDists(solpts);
-	    std::sort(solMolDistsCopy.begin(),solMolDistsCopy.end());
-	    //new scattering
-	    int newNoDistBins = int(1.1*std::ceil((kmax-kmin)*maxDist/3.14159265359));
-	    if(newNoDistBins!= noDistBins){
-	      ed.setPhases(maxDist,kmin,kmax);
-	    }
-	    double newScatterFit = ed.fitToScattering(molDistsCopy,solDistsCopy,solMolDistsCopy,molSize,noSolCopy); 
-	    distSum=0.0;
-	    for(int l=0;l<ovelps.size();l++){
-	      //std::cout<<totalIndex<<" dtest "<<closestApproachDist<<" "<<ovelps[l]<<" "<<std::abs(closestApproachDist-ovelps[l])<<" "<<std::exp(abs(closestApproachDist-ovelps[l]))-1.0<<"\n";
-	      distSum = distSum + std::exp(abs(closestApproachDist-ovelps[l]))-1.0;
-	      //std::cout<<"distances "<<std::abs(closestApproachDist-ovelps[l])<<"\n";
-	    }
-	    if(ovelps.size()>0){
-	      distSum = 0.1*distSum*(1.0/ovelps.size());
-	    }
-	    //std::cout<<newScatterFit<<" "<<0.01*distSum<<"\n";
-	    double contacPredPen=molCopy.getLennardJonesContact();
-	    //std::cout<<"compsize "<<newScatterFit<<" "<<contacPredPen<<"\n";
-	    newScatterFit =newScatterFit + distSum;
-	    // finally add contract prediction value
-	    newScatterFit =newScatterFit + contacPredPen;
-	    double uProb = distributionR(generator1);
-	    if(checkTransition(newScatterFit,scatterFit,uProb,k,noScatterFitSteps)){
-	    scatterFit  = newScatterFit;       
-	    mol=molCopy;
-	    molDists = molDistsCopy;
-	    solDists = solDistsCopy;
-	    solMolDists = solMolDistsCopy;
-	    noSol = noSolCopy;
-	    distSumCurr =distSum;
+	    if(solDistsCopy[solDistsCopy.size()-1]<10000.0){
+	      int noSolCopy=0;
+	      for(int i=0;i<solptsCopy.size();i++){
+		noSolCopy = noSolCopy + solptsCopy[i].size();
+	      }
+	      // get moelcule distances
+	      std::vector<double> molDistsCopy;
+	      std::vector<double> ovelps = molCopy.checkOverlapWithRad(closestApproachDist);   
+	      molDistsCopy = molCopy.getDistSet();
+	      std::sort(molDistsCopy.begin(),molDistsCopy.end());
+	      // get solvent-molecule distances
+	      maxDist = solDistsCopy[solDistsCopy.size()-1];
+	      std::vector<double> solMolDistsCopy = mol.solMolDists(solpts);
+	      std::sort(solMolDistsCopy.begin(),solMolDistsCopy.end());
+	      //new scattering
+	      int newNoDistBins = int(1.1*std::ceil((kmax-kmin)*maxDist/3.14159265359));
+	      if(newNoDistBins!= noDistBins){
+		ed.setPhases(maxDist,kmin,kmax);
+	      }
+	      double newScatterFit = ed.fitToScattering(molDistsCopy,solDistsCopy,solMolDistsCopy,molSize,noSolCopy); 
+	      distSum=0.0;
+	      for(int l=0;l<ovelps.size();l++){
+		//std::cout<<totalIndex<<" dtest "<<closestApproachDist<<" "<<ovelps[l]<<" "<<std::abs(closestApproachDist-ovelps[l])<<" "<<std::exp(abs(closestApproachDist-ovelps[l]))-1.0<<"\n";
+		distSum = distSum + std::exp(abs(closestApproachDist-ovelps[l]))-1.0;
+		//std::cout<<"distances "<<std::abs(closestApproachDist-ovelps[l])<<"\n";
+	      }
+	      if(ovelps.size()>0){
+		distSum = 0.1*distSum*(1.0/ovelps.size());
+	      }
+	      //std::cout<<newScatterFit<<" "<<0.01*distSum<<"\n";
+	      double contacPredPen=molCopy.getLennardJonesContact();
+	      //std::cout<<"compsize "<<newScatterFit<<" "<<contacPredPen<<"\n";
+	      newScatterFit =newScatterFit + distSum;
+	      // finally add contract prediction value
+	      newScatterFit =newScatterFit + contacPredPen;
+	      double uProb = distributionR(generator1);
+	      if(checkTransition(newScatterFit,scatterFit,uProb,k,noScatterFitSteps)){
+		scatterFit  = newScatterFit;       
+		mol=molCopy;
+		molDists = molDistsCopy;
+		solDists = solDistsCopy;
+		solMolDists = solMolDistsCopy;
+		noSol = noSolCopy;
+		distSumCurr =distSum;
+	      }
 	    }
 	  }
 	}

@@ -68,6 +68,7 @@ public:
   point parallelTransport(point &tan1,point &tan2,point &norm1);
   std::vector<std::vector<point> > updateFrame(std::vector<point> &section,point &tangent,point &normal,point &binormal);
   void getHydrophobicResidues();
+  std::vector<double> getHydrophobicDistance(std::vector<std::vector<point> > &solventList,double &maxSolDist);
   void getCoiledCoilResidues();
   void getPositiveResidues();
   void getNegativeResidues();

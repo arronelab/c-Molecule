@@ -833,42 +833,47 @@ void hydrationShellMinimal::updateTruthTable(int &ind1,int &ind2,double &R){
 
 
 
+// void hydrationShellMinimal::overlapPodstruct(int i,int j,int inch,int jnch){
+//   //first check if any overlap could be possible (i.e) is the centre point distnace less than the sum of the haldd length
+//   point cp1 = midPointList[i];point cp2 = midPointList[j];
+//   // calculate the relevant minimum distances
+//   std::pair<std::vector<std::vector<double> >,std::pair<std::string,std::string> > nearAppParams;
+//   point T1 = direcList[i];point T2 = direcList[j];
+//   double tm1 = halfLengthList[i];double tm2 = halfLengthList[j];
+//   nearAppParams =getMinTvalsFiniteNew(cp1,cp2,T1,T2,tm1,tm2);
+//   bool isOverlap;
+//   if(nearAppParams.second.first == "edge"){
+//     bool isIn1 = checkIsIn2(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[0][0],nearAppParams.first[0][1],inch,jnch,Rout,Rout);
+//     bool isIn2 =  checkIsIn2(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[1][0],nearAppParams.first[1][1],inch,jnch,Rout,Rout);
+//     bool isIn3 = checkIsIn1(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[2][0],nearAppParams.first[2][1],inch,jnch,Rout,Rout);
+//     bool isIn4 = checkIsIn2(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[3][0],nearAppParams.first[3][1],inch,jnch,Rout,Rout);
+//     if(isIn1 == true || isIn2 ==true|| isIn3 ==true|| isIn4 ==true){
+//       isOverlap = true;
+//     }else{
+//       isOverlap = false;
+//     }
+//   }else{
+//     // middle overlap check
+//     point p1 = cp1 + T1*nearAppParams.first[0][0];
+//     point p2 = cp2 + T2*nearAppParams.first[0][1];
+//     double dist = p1.eDist(p2);
+//  	  minimumDistances[inch].first[jnch-inch-1].first = dist-2*Rout;  
+//     if(p1.eDist(p2)< 2*Rout){
+//       isOverlap = true;
+//     }else{
+//       isOverlap = false;
+//     }
+//   }
+//   if(isOverlap ==true){
+//     updateTruthTable(i,j,Rout);
+//     updateTruthTable(j,i,Rin);
+//   }
+// }
+
 void hydrationShellMinimal::overlapPodstruct(int i,int j,int inch,int jnch){
-  //first check if any overlap could be possible (i.e) is the centre point distnace less than the sum of the haldd length
-  point cp1 = midPointList[i];point cp2 = midPointList[j];
-  // calculate the relevant minimum distances
-  std::pair<std::vector<std::vector<double> >,std::pair<std::string,std::string> > nearAppParams;
-  point T1 = direcList[i];point T2 = direcList[j];
-  double tm1 = halfLengthList[i];double tm2 = halfLengthList[j];
-  nearAppParams =getMinTvalsFiniteNew(cp1,cp2,T1,T2,tm1,tm2);
-  bool isOverlap;
-  if(nearAppParams.second.first == "edge"){
-    bool isIn1 = checkIsIn2(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[0][0],nearAppParams.first[0][1],inch,jnch,Rout,Rout);
-    bool isIn2 =  checkIsIn2(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[1][0],nearAppParams.first[1][1],inch,jnch,Rout,Rout);
-    bool isIn3 = checkIsIn1(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[2][0],nearAppParams.first[2][1],inch,jnch,Rout,Rout);
-    bool isIn4 = checkIsIn2(cp1,cp2,T1,T2,tm1,tm2,nearAppParams.first[3][0],nearAppParams.first[3][1],inch,jnch,Rout,Rout);
-    if(isIn1 == true || isIn2 ==true|| isIn3 ==true|| isIn4 ==true){
-      isOverlap = true;
-    }else{
-      isOverlap = false;
-    }
-  }else{
-    // middle overlap check
-    point p1 = cp1 + T1*nearAppParams.first[0][0];
-    point p2 = cp2 + T2*nearAppParams.first[0][1];
-    double dist = p1.eDist(p2);
- 	  minimumDistances[inch].first[jnch-inch-1].first = dist-2*Rout;  
-    if(p1.eDist(p2)< 2*Rout){
-      isOverlap = true;
-    }else{
-      isOverlap = false;
-    }
-  }
-  if(isOverlap ==true){
-    updateTruthTable(i,j,Rout);
-    updateTruthTable(j,i,Rin);
-  }
-}
+   updateTruthTable(i,j,Rout);
+   updateTruthTable(j,i,Rin);
+ }
 
 void hydrationShellMinimal::overlapPodstructJoined(int i,int j){
   updateTruthTable(i,j,Rout);
@@ -879,14 +884,14 @@ void hydrationShellMinimal::allOverlap(){
   for(int i=0;i<molsize-1;i++){
     for(int j=i+1;j<molsize;j++){
       if(j==i+1){
-	    overlapPodstructJoined(i,j);
-       minimumDistances[i].first[0].first=-100000.0;
+	overlapPodstructJoined(i,j);
+	//minimumDistances[i].first[0].first=-100000.0;
       }else{
-	  overlapPodstruct(i,j,i,j);
+	overlapPodstruct(i,j,i,j);
       }
     }
   }
-  for(int i=0;i<molsize-1;i++){
+  /*for(int i=0;i<molsize-1;i++){
     std::sort(minimumDistances[i].first.begin(),minimumDistances[i].first.end(),[](const std::pair<double,int> &left, const std::pair<double,int> &right) {
     return left.first < right.first;
 });   
@@ -902,9 +907,6 @@ void hydrationShellMinimal::allOverlap(){
       }
     }
     minimumDistances[i].second=k;
-  }
-  /*for(int i=0;i<minimumDistances[11].first.size();i++){
-    std::cout<<"test lengths "<<minimumDistances[11].first[i].first<<" "<<minimumDistances[11].first[i].second<<"\n";
     }*/
 }
 
@@ -1795,6 +1797,73 @@ void hydrationShellMinimal::getInitialScatterRT(int &nk,double &kmin,double &kma
 }
 
 
+void hydrationShellMinimal::solventMoleculeDistances(std::vector<double> &molSolDistances,std::vector<double> &solSolDistances){
+  // first find all solvent moelcule distances
+  for(int k=0;k<allSegments.size();k++){
+    for(int i=0;i<allSegments[k].size();i++){
+      for(int j=0;j<allSegments[k][0].size();j++){
+	bool overlapped = false;
+	std::vector<double> solMolPosDists;
+	for(int l=0;l<helixpts.size();l++){
+	  for(int m=0;m<helixpts[l].size();m++){
+	    // declare molpt
+	    if(k!=l){
+	      double dist =helixpts[l][m].eDist(allSegments[k][i][j]);
+	      if(dist<5.4){
+		overlapped=true;
+		//std::cout<<dist<<" "<<k<<" "<<i<<" "<<j<<" "<<l<<" "<<m<<"\n"; 
+	      }else{
+		solMolPosDists.push_back(dist);
+	      }
+	    }else{
+	       double dist =helixpts[l][m].eDist(allSegments[k][i][j]);
+	       solMolPosDists.push_back(dist);
+	    }
+	  }
+	}
+	if(overlapped==true){
+	  allTruthTables[k][i][j]=0;
+	}else{
+	  // this solvent is still in play, store its distances.
+	  if(molSolDistances.size()==0){
+	    molSolDistances= solMolPosDists;
+	  }else{
+	    molSolDistances.insert(molSolDistances.end(),solMolPosDists.begin(),solMolPosDists.end());
+	  }
+	}
+      }
+    }
+  }
+  for(int k=0;k<allSegments.size()-1;k++){
+    for(int i=0;i<allSegments[k].size();i++){
+      for(int j=0;j<allSegments[k][0].size();j++){
+	//std::cout<<allTruthTables[k][i][j]<<"\n";
+	if(allTruthTables[k][i][j]==1){
+	  for(int l=k+1;l<allSegments.size();l++){
+	    for(int m=0;m<allSegments[l].size();m++){
+	      for(int n=0;n<allSegments[l][0].size();n++){
+		if(allTruthTables[l][m][n]==1){
+		 double soldist = allSegments[l][m][n].eDist(allSegments[k][i][j]);
+		 //std::cout<<soldist<<"\n";
+		 if(soldist<2.5){
+		   allTruthTables[l][m][n]=0;
+		 }else{
+		   solSolDistances.push_back(soldist);
+		 }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+  //std::cout<<"escape ? "<<molSolDistances.size()<<" "<<solSolDistances.size()<<"\n";
+  // now we check for solvent solvent distances *between* sections (not within a section)
+}
+
+
+
 std::vector<std::vector<point> > hydrationShellMinimal::returnFlatSolList(){
   solPtsFlat.clear();
   int noflps =0;
@@ -1802,6 +1871,7 @@ std::vector<std::vector<point> > hydrationShellMinimal::returnFlatSolList(){
     std::vector<point> spts;
     for(int i=0;i<allSegments[k].size();i++){
       for(int j=0;j<allSegments[k][0].size();j++){
+	//std::cout<<i<<" "<<j<<" "<<k<<" "<<allTruthTables[k][i][j]<<"\n";
 	if(allTruthTables[k][i][j]==1){
 	  spts.push_back(allSegments[k][i][j]);
 	}
