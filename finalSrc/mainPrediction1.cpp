@@ -61,18 +61,11 @@ int main( int argc, const char* argv[] )
     mol.readInSequence(argv[1],rmin,rmax,lmin);
     // generate random start (with no overlap)
     mol.getRandomMolecule();
-    mol.writeMoleculeToFile("testMol.dat");
-    // identify hydrophobic residues
-    mol.getHydrophobicResidues();
   }else{
     // read in from sequernce and sc structure pred
     mol.readInSequence(argv[1],rmin,rmax,lmin);
     // read in coordinates
     mol.readInCoordinates(argv[2]);
-    //here would be the filling in missing section routine
-    // identify hydrophobic residues
-    mol.writeMoleculeToFile("testMol.dat");
-    mol.getHydrophobicResidues();
   }
   bool doAll = false;
 
