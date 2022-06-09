@@ -170,9 +170,9 @@ int main( int argc, const char* argv[] )
      read in the scattering and set up the scattering model
 
    ******************************************/
-  /* 
-    experimentalData ed(argv[1]);
-  */
+   
+  experimentalData ed(argv[1]);
+  
   
   /*
    ed.generatePR();
