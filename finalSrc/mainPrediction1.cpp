@@ -75,5 +75,6 @@ int main( int argc, const char* argv[] )
     mol.getHydrophobicResidues();
   }
   bool doAll = false;
-  
-  mol.writeMoleculeToFile(argv[3]);
+
+mol.writeMoleculeToFile(argv[3]);
+}
