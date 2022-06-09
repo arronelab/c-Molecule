@@ -73,9 +73,9 @@ int main( int argc, const char* argv[] )
     std::cout<<"here?\n";
     mol.readInSequence(argv[2],rmin,rmax,lmin);
     // generate random start (with no overlap)
-    //std::cout<<"here ?\n";
+    std::cout<<"here ?\n";
     mol.getRandomMolecule();
-     std::cout<<" made random mol ?\n";
+    std::cout<<" made random mol ?\n";
      // mol.writeMoleculeToFile("testMol.dat");
     // identify hydrophobic residues
     mol.getHydrophobicResidues();
