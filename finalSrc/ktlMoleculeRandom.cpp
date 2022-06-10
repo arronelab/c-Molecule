@@ -673,7 +673,7 @@ void ktlMolecule::readInSequence(const char* filename,double &rmin,double &rmax,
     std::getline(myfile,chainNo);
     std::stringstream ss(chainNo);
     ss>>noChains;
-    // std::cout<<"number of chains "<<noChains<<"\n";
+    std::cout<<"number of chains "<<noChains<<"\n";
     distSetsSecs.resize(noChains);
     for(int i=1;i<=noChains;i++){
       std::pair<int,int> p;
@@ -1772,14 +1772,20 @@ std::vector<double> ktlMolecule::checkOverlapWithRad(double &wRad,int &sec){
 std::vector<double> ktlMolecule::checkOverlapWithRad(double &wRad){
   std::vector<double> overlappedSecs;
   distSets.clear();
-  for(int i=0;i<coords.size()-1;i++){
+  for(int i=0;i<coords.size();i++){
     bool triggered =false;
-    for(int j=i+1;j<coords.size();j++){
+    for(int j=i;j<coords.size();j++){
       for(int k=0;k<coords[i].size();k++){
 	for(int l=0;l<coords[j].size();l++){
 	  double dist= coords[i][k].eDist(coords[j][l]);
-          distSets.push_back(dist);
-          if(k==(coords[i].size()-1)&&l==0 && j==i+1){
+	  if(i==j){
+	    if(l>k){
+	      distSets.push_back(dist);
+	    }
+	  }else{
+	    distSets.push_back(dist);
+	  }
+          if((k==(coords[i].size()-1)&&l==0 && j==i+1)||j==i){
 	    dist=10.0;
           }
 	  if(dist<wRad){
@@ -1996,14 +2002,14 @@ int ktlMolecule::getRandomMolecule(){
   coords.clear();
   int noOverLaps=0;
   for(int i=0;i<chainList.size();i++){
-    // std::cout<<"chain "<<i<<"\n";
+     std::cout<<"chain "<<i<<"\n";
     std::vector<std::pair<std::string,int> >::const_iterator first =nameSizeList.begin()+chainList[i].first;
     std::vector<std::pair<std::string,int> >::const_iterator second =nameSizeList.begin()+chainList[i].second+1;
     std::vector<std::pair<std::string,int> > subns(first,second);
     point sp(0.0,0.0,0.0);
     bool suc=true;
     std::vector<std::vector<point> > submol = rmg.makeRandomMolecule(subns,sp,suc);
-    // std::cout<<"made man\n?";
+    std::cout<<"made man\n?";
     std::vector<int> overLapList = checkOverlap(submol);
     std::vector<int> currOverLapList= overLapList;
     std::random_device rdev{};
@@ -2540,7 +2546,7 @@ void ktlMolecule::changeMoleculeSingleCheckOverlap(){
 void ktlMolecule::writeMoleculeToFile(const char* filename){
   std::ofstream ofile;
   ofile.open(filename);
-  // std::cout<<filename<<"\n";
+  //std::cout<<filename<<"\n";
   if(ofile.is_open()){
      for(int k=0;k<chainList.size();k++){
       for(int i=chainList[k].first;i<=chainList[k].second;i++){

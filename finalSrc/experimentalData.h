@@ -20,6 +20,7 @@ class experimentalData{
   double fitToScatteringMultiple(std::vector<std::vector<double> > &molDists,std::vector<std::vector<double> > &solDists,std::vector<std::vector<double> > &solMolDists,std::vector<int> &molSz,std::vector<int> &solSz,std::vector<double> &percentageCombinations);
   void writeScatteringToFile(std::vector<double> &molDists,std::vector<double> &solDists,std::vector<double> &solMolDists,int &molSz,int &solSz,const char* filename);
   void writeScatteringToFileMultiple(std::vector<std::vector<double> > &molDists,std::vector<std::vector<double> > &solDists,std::vector<std::vector<double> > &solMolDists,std::vector<int> &molSz,std::vector<int> &solSz,std::vector<double> &percentageCombinations,const char* filename);
+  void writeRawMolScatteringToFileMultiple(std::vector<std::vector<double> > &molDists,std::vector<std::vector<double> > &solDists,std::vector<std::vector<double> > &solMolDists,std::vector<int> &molSz,std::vector<int> &solSz,std::vector<double> &percentageCombinations,const char* filename);
  private:
   std::vector<double> gaussianParams;
   std::vector<double> gaussianParamsHyd;

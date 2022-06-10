@@ -131,7 +131,7 @@ bool experimentalData::binDataCheck(double &dMax,double &qmin,double &qmax){
 
 
 int experimentalData::setPhases(double &dMax,double &qmin,double &qmax){
-  noDistBins = int(2.1*std::ceil((qmax-qmin)*dMax/3.14159265359));
+   noDistBins = int(2.1*std::ceil((qmax-qmin)*dMax/3.14159265359));
   //check if we can bin
   bool binsOk=false;
   // check we can bin the data with this number of bins
@@ -142,6 +142,7 @@ int experimentalData::setPhases(double &dMax,double &qmin,double &qmax){
       noDistBins=noDistBins-1;
     }
   }
+  //std::cout<<"no dist bins "<<dMax<<" "<<noDistBins<<"\n";
   double dr = dMax/double(noDistBins);
   double dq = (qmax-qmin)/double(noDistBins);
   experimentalIntensity.clear();distBins.clear();scatPhases.clear();
@@ -399,17 +400,17 @@ double experimentalData::fitToScatteringMultiple(std::vector<std::vector<double>
     double aminoScat = gaussianFixed(qvals[i]);
     double solScat = gaussianHydFixed(qvals[i]);
     for(int j=0;j<scatPhases.size();j++){
-      //std::cout<<"phases "<<scatPhases[j][i]<<" "<<molDistNo[j]<<" "<<solDistNo[j]<<" "<<solMolDistNo[j]<<"\n";
+      //  std::cout<<"phases "<<scatPhases[j][i]<<" "<<molDistNo[j]<<" "<<solDistNo[j]<<" "<<solMolDistNo[j]<<"\n";
       scatk =  scatk + scatPhases[j][i]*(aminoScat*aminoScat*molDistNo[j] + solScat*solScat*solDistNo[j] + solScat*aminoScat*solMolDistNo[j]);
-      //std::cout<<scatk<<"\n";
     }
+    //std::cout<<i<<" "<<scatk<<"\n";
     scatVals.push_back(scatk);
   }
     // now take the log
   std::vector<double> logdifs;
   double logDifMean=0.0;
   for(int i=0;i<scatVals.size();i++){
-    //std::cout<<std::log(scatVals[i])+(std::log(experimentalIntensity[0])-std::log(scatVals[0]))<<" "<<std::log(experimentalIntensity[i])<<"\n";
+    //std::cout<<std::log(scatVals[i])<<" "<<std::log(scatVals[i])+(std::log(experimentalIntensity[0])-std::log(scatVals[0]))<<" "<<std::log(experimentalIntensity[i])<<"\n";
     double logScatDif= std::log(scatVals[i]) - std::log(experimentalIntensity[i]);
     logdifs.push_back(logScatDif);
     logDifMean =  logDifMean + logScatDif;
@@ -641,6 +642,68 @@ void experimentalData::writeScatteringToFileMultiple(std::vector<std::vector<dou
   double pred = 0.0;
   for(int i=0;i<scatVals.size();i++){
     myfile<<qvals[i]<<" "<<scatVals[i]<<" "<<std::log(scatVals[i])- logDifMean<<" "<<std::log(experimentalIntensity[i])<<"\n";
+  }
+  // finally add the percentage combination values
+  for(int i=0;i<percentageCombinations.size();i++){
+    if(i==(percentageCombinations.size()-1)){
+      myfile<<percentageCombinations[i]<<"\n";
+    }else{
+      myfile<<percentageCombinations[i]<<" ";
+    }
+  }
+  myfile.close();
+}
+
+
+
+
+void experimentalData::writeRawMolScatteringToFileMultiple(std::vector<std::vector<double> > &molDists,std::vector<std::vector<double> > &solDists,std::vector<std::vector<double> > &solMolDists,std::vector<int> &molSz,std::vector<int> &solSz,std::vector<double> &percentageCombinations,const char* filename){
+  /*****************************************
+
+	   molecule distance binning
+ 
+  ******************************************/
+  std::vector<double> molDistNo(distBins.size(),0);
+  for(int j=0;j<molDists.size();j++){
+    int k=0;
+    int endK;
+    for(int i=0;i<distBins.size();i++){
+      std::pair<double,double> binPr = distBins[i];
+      int startK=k;
+      while(molDists[j][k]>binPr.first &&molDists[j][k]<=binPr.second){
+	//std::cout<<molDists[k]<<"\n";
+	k++;
+      }
+       endK =k;
+      if(i!=0){
+	molDistNo[i]=molDistNo[i] + percentageCombinations[j]*(2.0*double(endK-startK));
+      }else{
+	//if we are considering the first bin it must include the zero distances e,eg, the square of hte number of molecules (why suqe
+	//std::cout<<molSz[j]<<"\n";
+	molDistNo[i]=molDistNo[i]+ percentageCombinations[j]*(2.0*double(endK-startK)+double(molSz[j]));
+      }
+    }
+    //std::cout<<"mol numbers "<<0.5*(binPr.first+binPr.second)<<" "<<2.0*(endK-startK)<<"\n";
+    //std::cout<<"final k "<<2*endK+molSz[j]<<" "<<2*molDists[j].size()+molSz[j]<<" "<<molSz[j]*molSz[j]<<"\n";
+  }
+  std::vector<double> scatVals;
+  for(int i=0;i<scatPhases[0].size();i++){
+    double scatk=0.0;
+    // here we get the scatteirng formuale (decay with q)
+    double aminoScat = gaussianFixed(qvals[i]);
+    double solScat = gaussianHydFixed(qvals[i]);
+    for(int j=0;j<scatPhases.size();j++){
+      scatk =  scatk + scatPhases[j][i]*molDistNo[j];
+    }
+    //std::cout<<i<<" "<<scatk<<"\n";
+    scatVals.push_back(scatk);
+  }
+    // now take the log
+  std::vector<std::pair<double,double> > scatterData;
+  std::ofstream myfile;
+  myfile.open(filename);
+  for(int i=0;i<scatVals.size();i++){
+    myfile<<qvals[i]<<" "<<std::log(scatVals[i])<<"\n";
   }
   // finally add the percentage combination values
   for(int i=0;i<percentageCombinations.size();i++){

@@ -322,6 +322,39 @@ int main( int argc, const char* argv[] )
       scatterFit = scatterFitTemp;
       percentageCombinations = mixtureList[i];
     }
+    std::stringstream ss;
+    ss<<0;
+    const char* str = ss.str().c_str(); 
+    char outputLoc[100];
+    char absWrFile[100];
+    char wrFile[100];
+    char scatterFile[100];
+    char molFile[100];
+    strcpy(outputLoc,argv[13]);
+    strcat(outputLoc,"/");
+    strcpy(absWrFile,outputLoc);
+    strcpy(wrFile,outputLoc);
+    strcpy(scatterFile,outputLoc);
+    strcpy(molFile,outputLoc);
+    strcat(absWrFile,"absWrFP");
+    strcat(absWrFile,str);
+    strcat(absWrFile,".dat");
+    strcat(wrFile,"wrFP");
+    strcat(wrFile,str);
+    strcat(wrFile,".dat");
+    strcat(scatterFile,"scatter");
+    strcat(scatterFile,str);
+    strcat(scatterFile,".dat");
+    strcat(molFile,"mol");
+    strcat(molFile,str);
+    strcat(molFile,".dat");
+    std::cout<<"file ? "<<scatterFile<<"\n";
+    std::vector<std::vector<point> > crds =mol[0].getCoordinates();
+    localWrithe lw;
+    lw.DIDownSampleAbsWrite(crds,absWrFile);
+    lw.DIDownSampleWrite(crds,wrFile);
+    ed.writeRawMolScatteringToFileMultiple(molDists,solDists,solMolDists,molSize,noSol,mixtureList[i],scatterFile);
+    mol[0].writeMoleculeToFile(molFile);
   }
   std::cout<<"done initial scatter\n";
 
@@ -380,6 +413,7 @@ int main( int argc, const char* argv[] )
    originalWrithes.push_back(wrFingerPrint[wrFingerPrint.size()-1].second);
   }
 
+  int saveIndex=0;
   
   /******************************************************************
   
@@ -387,7 +421,6 @@ int main( int argc, const char* argv[] )
   
   ******************************************************************/
 
-  //ed.writeScatteringToFile(molDists,solDists,solMolDists,molSize,noSol,argv[13]);
 
   /****************************************************************************
     
@@ -568,16 +601,39 @@ int main( int argc, const char* argv[] )
 		//
 		localWrithe lw;
 		std::vector<std::vector<point> > crds =molCopy.getCoordinates();
-		std::vector<std::pair<std::pair<int,int>,double> > wrFingerPrint =lw.DIDownSampleAbs(crds);
-	        double newWrithe = wrFingerPrint[wrFingerPrint.size()-1].second;
-		// penalise the writhe being too far from its original value.
-		double wrPenDen =std::abs((originalWrithes[l]-newWrithe)/originalWrithes[l]);
-		double wrPen = 1.0-std::exp(-50.0*wrPenDen*wrPenDen*wrPenDen*wrPenDen*wrPenDen*wrPenDen);
-		//std::cout<<wrPen<<" "<<newWrithe<<" "<<originalWrithes[l]<<"\n";
-	        newScatterFit = newScatterFit + wrPen;
-		double uProb = distributionR(generator1);
+		std::stringstream ss;
+		saveIndex++;
+		ss<<saveIndex;
+		const char* str = ss.str().c_str(); 
+		char outputLoc[100];
+		char absWrFile[100];
+		char wrFile[100];
+		char scatterFile[100];
+		char molFile[100];
+		strcpy(outputLoc,argv[13]);
+		strcat(outputLoc,"/");
+		strcpy(absWrFile,outputLoc);
+		strcpy(wrFile,outputLoc);
+		strcpy(scatterFile,outputLoc);
+		strcpy(molFile,outputLoc);
+		strcat(absWrFile,"absWrFP");
+		strcat(absWrFile,str);
+		strcat(absWrFile,".dat");
+		strcat(wrFile,"wrFP");
+		strcat(wrFile,str);
+		strcat(wrFile,".dat");
+		strcat(scatterFile,"scatter");
+		strcat(scatterFile,str);
+		strcat(scatterFile,".dat");
+		strcat(molFile,"mol");
+		strcat(molFile,str);
+		strcat(molFile,".dat");
+		lw.DIDownSampleAbsWrite(crds,absWrFile);
+	        lw.DIDownSampleWrite(crds,wrFile);
+		ed.writeRawMolScatteringToFileMultiple(molDistsTmp,solDistsTmp,solMolDistsTmp,molSize,noSolTmp,percentageCombinationsTmp,scatterFile);
+		molCopy.writeMoleculeToFile(molFile);
 		// check if we have improved overall, if so update the "best" fit, note that this best is based only on changeing this current molecule.
-		
+		double uProb = distributionR(generator1);
 		if(checkTransition(newScatterFit,scatterFitBest,uProb,k,noScatterFitSteps)){
 		  scatterFitBest  = newScatterFit;       
 		  molBest=molCopy;
@@ -617,18 +673,5 @@ int main( int argc, const char* argv[] )
     k++;
     std::cout<<k<<" "<<scatterFit<<" "<<overlapPenalty<<" "<<hydrationPenalisation<<" "<<percentageCombinations[0]<<" "<<percentageCombinations[1]<<"\n";
   }
-  for(int i=0;i<mol.size();i++){
-    std::stringstream ss;
-    int ind1=i+1;
-    ss<<ind1;
-    const char* str = ss.str().c_str(); 
-    char outputMolLoc[100];
-    strcpy(outputMolLoc,argv[12]);
-    strcat(outputMolLoc,"_");
-    strcat(outputMolLoc,str);
-    strcat(outputMolLoc,".dat");
-    mol[i].writeMoleculeToFile(outputMolLoc);
-  }
-  ed.writeScatteringToFileMultiple(molDists,solDists,solMolDists,molSize,noSol,percentageCombinations,argv[13]);
 }
       

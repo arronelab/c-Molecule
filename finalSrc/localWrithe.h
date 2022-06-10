@@ -55,6 +55,8 @@ public:
   double DIClosedLk(std::vector<point>& pointList,std::vector<point>& pointList2);
   std::vector<std::pair<std::pair<int,int>,double> > DIDownSample(std::vector<std::vector<point> >& pointListIn);
   std::vector<std::pair<std::pair<int,int>,double> > DIDownSampleAbs(std::vector<std::vector<point> >& pointListIn);
+  void  DIDownSampleWrite(std::vector<std::vector<point> >& pointListIn,const char* filename);
+  void  DIDownSampleAbsWrite(std::vector<std::vector<point> >& pointListIn,const char* filename);
 private:
   double den,lambda;
   double writhepl;

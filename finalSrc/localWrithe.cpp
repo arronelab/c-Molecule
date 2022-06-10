@@ -1210,7 +1210,7 @@ std::vector<std::pair<std::pair<int,int>,double> > localWrithe::DIDownSample(std
 	 std::vector<point> subVec(first, last);
 	 double wrval = DI(subVec);
          std::pair<int,int> pr;
-         pr.first=k;pr.second=k+1;     
+         pr.first=k;pr.second=k+l;     
          std::pair<std::pair<int,int>,double> fppoint;
          fppoint.first=pr;fppoint.second=wrval;
          fingerPrintList.push_back(fppoint);
@@ -1239,7 +1239,7 @@ std::vector<std::pair<std::pair<int,int>,double> > localWrithe::DIDownSampleAbs(
 	 std::vector<point> subVec(first, last);
 	 double wrval = DIAbs(subVec);
          std::pair<int,int> pr;
-         pr.first=k;pr.second=k+1;     
+         pr.first=k;pr.second=k+l;     
          std::pair<std::pair<int,int>,double> fppoint;
          fppoint.first=pr;fppoint.second=wrval;
          fingerPrintList.push_back(fppoint);
@@ -1247,4 +1247,62 @@ std::vector<std::pair<std::pair<int,int>,double> > localWrithe::DIDownSampleAbs(
     }   
   }
   return fingerPrintList;
+}
+
+
+
+void  localWrithe::DIDownSampleWrite(std::vector<std::vector<point> >& pointListIn,const char* filename){
+  // first downsample
+  std::vector<point> mol;
+  for(int i=0;i<pointListIn.size();i++){
+    mol.push_back(pointListIn[i][0]);
+  }
+  std::vector<point> lastSec = pointListIn[pointListIn.size()-1];
+  mol.push_back(lastSec[lastSec.size()-1]);
+  std::vector<std::pair<std::pair<int,int>,double> > fingerPrintList;
+  std::ofstream fingerFile;
+  fingerFile.open(filename);
+  for(int l=5;l<mol.size();l++){
+     for(int k=0;k<mol.size()-5;k++){
+       if(k+l<mol.size()){
+	 // grab subsection of curve;
+	 std::vector<point>::const_iterator first = mol.begin()+k;
+         std::vector<point>::const_iterator last = mol.begin()+k+l;
+	 std::vector<point> subVec(first, last);
+	 double wrval = DI(subVec);
+         std::pair<int,int> pr;
+         pr.first=k;pr.second=k+l;     
+         fingerFile<<k<<" "<<k+l<<" "<<wrval<<"\n";
+       }
+    }   
+  }
+  fingerFile.close();
+}
+
+void  localWrithe::DIDownSampleAbsWrite(std::vector<std::vector<point> >& pointListIn,const char* filename){
+  // first downsample
+  std::vector<point> mol;
+  for(int i=0;i<pointListIn.size();i++){
+    mol.push_back(pointListIn[i][0]);
+  }
+  std::vector<point> lastSec = pointListIn[pointListIn.size()-1];
+  mol.push_back(lastSec[lastSec.size()-1]);
+  std::vector<std::pair<std::pair<int,int>,double> > fingerPrintList;
+  std::ofstream fingerFile;
+  fingerFile.open(filename);
+  for(int l=5;l<mol.size();l++){
+     for(int k=0;k<mol.size()-5;k++){
+       if(k+l<mol.size()){
+	 // grab subsection of curve;
+	 std::vector<point>::const_iterator first = mol.begin()+k;
+         std::vector<point>::const_iterator last = mol.begin()+k+l;
+	 std::vector<point> subVec(first, last);
+	 double wrval = DIAbs(subVec);
+         std::pair<int,int> pr;
+         pr.first=k;pr.second=k+l;     
+         fingerFile<<k<<" "<<k+l<<" "<<wrval<<"\n";
+       }
+    }   
+  }
+  fingerFile.close();
 }
