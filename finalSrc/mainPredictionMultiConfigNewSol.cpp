@@ -1,7 +1,8 @@
 #include "ktlMoleculeRandom.h"
 #include "hydrationShellRandom.h"
 #include "experimentalData.h"
-#include <string.h> 
+#include <string.h>
+#include "localWrithe.h"
 
 
 /***********************************************
@@ -365,6 +366,17 @@ int main( int argc, const char* argv[] )
 
   std::cout<<"initial  hydration penalisation "<<hydrationPenalisation<<"\n";
   scatterFit = scatterFit +  hydrationPenalisation;
+
+
+  // calculate writhe lists
+
+  for(int i=0;i<mol.size();i++){
+   localWrithe lw;
+   std::vector<std::vector<point> > crds =mol[i].getCoordinates();
+   std::vector<std::pair<std::pair<int,int>,double> > wrFingerPrint =lw.DIDownSampleAbs(crds);
+   std::cout<<"wr is "<<wrFingerPrint[wrFingerPrint.size()-1].second<<"\n";
+  }
+
   
   /******************************************************************
   
@@ -516,11 +528,11 @@ int main( int argc, const char* argv[] )
 		std::vector<double> percentageCombinationsTmp(mol.size(),0.0);
 		for(int iv=0;iv<mixtureList.size();iv++){
 		  double scatterFitTemp = ed.fitToScatteringMultiple(molDistsTmp,solDistsTmp,solMolDistsTmp,molSize,noSolTmp,mixtureList[iv]);
-		  std::cout<<"percentage species 1,2,3...: ";
+		  /*std::cout<<"percentage species 1,2,3...: ";
 		  for(int jv=0;jv<mixtureList[iv].size();jv++){
 		    std::cout<<mixtureList[iv][jv]<<" ";
 		  }
-		  std::cout<<scatterFitTemp<<"\n";
+		  std::cout<<scatterFitTemp<<"\n";*/
 		  if(scatterFitTemp<newScatterFit){
 		    newScatterFit = scatterFitTemp;
 		    percentageCombinationsTmp = mixtureList[iv];
@@ -548,8 +560,14 @@ int main( int argc, const char* argv[] )
 		for(int iv=0;iv<mol.size();iv++){
 		  hydrationPenalisationNew = hydrationPenalisationNew + getHydrophobicPackingPenalty(hydrophobicPackingMeasuresTmp[l]);
 		}//std::cout<<"updated hydration penalisation "<<hydrationPenalisationNew<<"\n";
-		
 		newScatterFit = newScatterFit +  hydrationPenalisationNew;
+
+		//
+		localWrithe lw;
+		std::vector<std::vector<point> > crds =molCopy.getCoordinates();
+		std::vector<std::pair<std::pair<int,int>,double> > wrFingerPrint =lw.DIDownSampleAbs(crds);
+	        std::cout<<"wr is "<<wrFingerPrint[wrFingerPrint.size()-1].second<<"\n";
+		
 		double uProb = distributionR(generator1);
 		// check if we have improved overall, if so update the "best" fit, note that this best is based only on changeing this current molecule.
 		
