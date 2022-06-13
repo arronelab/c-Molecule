@@ -587,8 +587,8 @@ int main( int argc, const char* argv[] )
 		  }
 		}
 		//std::cout<<" test ? "<<l<<" "<<newScatterFit<<" "<<overlapPenaltyNew<<"\n";
-		newScatterFit =newScatterFit +  overlapPenaltyNew;
-		if(overlapPenaltyNew<0.0001){
+		newScatterFit = newScatterFit +  overlapPenaltyNew;
+		
 	      // finally add contract prediction value
 		newScatterFit =newScatterFit + contactPredPenNew;
 		double hydrationPenalisationNew=0.0;
@@ -598,7 +598,7 @@ int main( int argc, const char* argv[] )
 		  hydrationPenalisationNew = hydrationPenalisationNew + getHydrophobicPackingPenalty(hydrophobicPackingMeasuresTmp[l]);
 		}//std::cout<<"updated hydration penalisation "<<hydrationPenalisationNew<<"\n";
 		newScatterFit = newScatterFit +  hydrationPenalisationNew;
-
+    if(overlapPenaltyNew<0.0001){
 		//
 		localWrithe lw;
 		std::vector<std::vector<point> > crds =molCopy.getCoordinates();
