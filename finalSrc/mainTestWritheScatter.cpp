@@ -588,6 +588,7 @@ int main( int argc, const char* argv[] )
 		}
 		//std::cout<<" test ? "<<l<<" "<<newScatterFit<<" "<<overlapPenaltyNew<<"\n";
 		newScatterFit =newScatterFit +  overlapPenaltyNew;
+		if(overlapPenaltyNew<0.0001){
 	      // finally add contract prediction value
 		newScatterFit =newScatterFit + contactPredPenNew;
 		double hydrationPenalisationNew=0.0;
@@ -632,6 +633,7 @@ int main( int argc, const char* argv[] )
 	        lw.DIDownSampleWrite(crds,wrFile);
 		ed.writeRawMolScatteringToFileMultiple(molDistsTmp,solDistsTmp,solMolDistsTmp,molSize,noSolTmp,percentageCombinationsTmp,scatterFile);
 		molCopy.writeMoleculeToFile(molFile);
+		}
 		// check if we have improved overall, if so update the "best" fit, note that this best is based only on changeing this current molecule.
 		double uProb = distributionR(generator1);
 		if(checkTransition(newScatterFit,scatterFitBest,uProb,k,noScatterFitSteps)){
