@@ -598,7 +598,7 @@ int main( int argc, const char* argv[] )
 		  hydrationPenalisationNew = hydrationPenalisationNew + getHydrophobicPackingPenalty(hydrophobicPackingMeasuresTmp[l]);
 		}//std::cout<<"updated hydration penalisation "<<hydrationPenalisationNew<<"\n";
 		newScatterFit = newScatterFit +  hydrationPenalisationNew;
-    if(overlapPenaltyNew<0.0001){
+    if(overlapPenaltyNew<0.001){
 		//
 		localWrithe lw;
 		std::vector<std::vector<point> > crds =molCopy.getCoordinates();
