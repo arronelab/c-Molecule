@@ -18,6 +18,6 @@ mkdir newFitData/$1/$2
 
 for i in {1..1}
 do
-    writheScatterTest $ScatterFile $fileLocs $initialCoordsFile $pairedPredictions $fixedsections $noStructures $withinMonomerHydroCover $betweenMonomerHydroCover $kmin $kmax $maxNoFitSteps newFitData/$1/$2/mol$i newFitData/$1/$2 newFitData/$1/mixtureFile.dat
+    /content/makeMolecules/writheScatterTest $ScatterFile $fileLocs $initialCoordsFile $pairedPredictions $fixedsections $noStructures $withinMonomerHydroCover $betweenMonomerHydroCover $kmin $kmax $maxNoFitSteps newFitData/$1/$2/mol$i newFitData/$1/$2 newFitData/$1/mixtureFile.dat
 done
  
