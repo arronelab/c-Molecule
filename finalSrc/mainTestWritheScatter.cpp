@@ -5,13 +5,13 @@
 #include "localWrithe.h"
 
 
-/***********************************************
-
-  argv[1] scattering data file
+/************************************************
+ 
+  argv[1] scattering data file location
   argv[2] sequence file location
-  argv[3] initial prediction coord location  file 
-  argv[4] paired distances file (can be empty)
-  argv[5] fixed sections file (again can be empty)
+  argv[3] initial prediction coord file location (can be none)
+  argv[4] paired distances file location (can be none)
+  argv[5] fixed sections file location (again can be none)
   argv[6] number of structures 
   argv[7] request to apply hydrophobic covering WITHIN monomers will be a list of sections on which to apply it. Will say none if not. -- Currently not used
   argv[8] request to apply hydrophobic covering BETWEEN monomers will be a list of pairs to try to hydropobically pair. Will say none if not. -- currently not used
@@ -20,7 +20,8 @@
   argv[11] Max number of fitting steps
   argv[12] prediction file 
   argv[13] scattering output file
-  argv[14] mixture list file, a list of sets of numbers indicatig the allowed set of mixture percentages of each species (e.g. dimer 20 monomer 80)
+  argv[14] mixture list file, a list of sets of numbers indicating the allowed set of mixture percentages of each species (e.g. dimer 20 monomer 80)
+
 **********************************************/
 
 
@@ -72,7 +73,7 @@ void generateAllDistances(ktlMolecule &molin,hydrationShellMinimal &hydrationShe
   for(int i=0;i<solptsin.size();i++){
     noSolin = noSolin + solptsin[i].size();
   }
-  //std::cout<<"no amino acis "<<molSizein<<" no solvents "<<noSolin<<"\n";
+  //std::cout<<"no amino acids "<<molSizein<<" no solvents "<<noSolin<<"\n";
   // calculate solvent-calpha distances
   std::sort(solMolDistsin.begin(),solMolDistsin.end());
 }
@@ -94,29 +95,32 @@ double getHydrophobicPackingPenalty(double &packValue){
 
 int main( int argc, const char* argv[] )
 {  
- /*************************************
+/************************************************
 
   set up model parameters 
  
-  *************************************/
+**********************************************/
   
-  double lmin=4.0; // closest distance two non adjactent local (same secondary unit) moelcules can get
+  double lmin=4.0; // closest distance two non adjacent local (same secondary unit) molecules can get
   double rmin=3.7;double rmax=3.9; // max and min calpha-Dists
-  double closestApproachDist=3.9; // closest distance two non adjactent non local moelcules (different secondary unit) can get
+  double closestApproachDist=3.9; // closest distance two non adjactent non local (different secondary unit) molecules can get
 
   /*************************************
   
-   determine initial model: Two options no initial prediction, we must generate a structure
-   or some initial structure provided. Actually we need a half-half option
+  To determine initial model we have two options:
+      -no initial prediction, so we must generate a structure
+      -some initial structure provided. 
+      
+  ** ToDo: A half-half option **
 
-   *************************************/
+  **************************************/
 
   int noStructures = std::atoi(argv[6]);
   
   
   std::vector<ktlMolecule> mol;
   for(int i=0;i<noStructures;i++){
-    // read in the sequence and seocndary structure
+    // read in the sequence and secondary structure
     std::stringstream ss;
     int ind1=i+1;
     ss<<ind1;
@@ -135,7 +139,7 @@ int main( int argc, const char* argv[] )
     strcat(coordinateLoc,str);
     strcat(coordinateLoc,".dat");
     molTmp.readInCoordinates(coordinateLoc);
-    // fine the hydrophobic residues
+    // find the hydrophobic residues
     molTmp.getHydrophobicResidues();
     mol.push_back(molTmp);
   }
@@ -186,7 +190,6 @@ int main( int argc, const char* argv[] )
 
   experimentalData ed(argv[1]);
 
-
   /*************************************************
 
     generate the hydration layer model(s)
@@ -207,7 +210,7 @@ int main( int argc, const char* argv[] )
   std::vector<int> molSize;
   std::vector<int> noSol;
 
-  // call the hydration shell for eaxm molecule 
+  // call the hydration shell for each molecule 
   std::vector<hydrationShellMinimal> hydrationShells;
   for(int i=0;i<mol.size();i++){
     hydrationShellMinimal hydrationShell(mol[i],Rin,Rout,RShell,ntrivs,helixRatio,solventsPerLink,closestApproachDist,rmin,rmax,lmin);
@@ -236,7 +239,7 @@ int main( int argc, const char* argv[] )
   // note we take the binsize based on the largest molecule distance over all moelcules. maxDistList stores this
   std::vector<double> maxDistList;
 
-  // The vector hydrophobicPackingMeasures stores hhyrdophoic packingscores for each moelcule (the exact nature of the score is work in progress)
+  // The vector hydrophobicPackingMeasures stores hyrdophobic packingscores for each molecule (the exact nature of the score is work in progress)
   std::vector<double> hydrophobicPackingMeasures;
 
   // the main distance calculating loop,
@@ -244,14 +247,13 @@ int main( int argc, const char* argv[] )
     //check for overlaps
     std::vector<double> overlapDists= mol[i].checkOverlapWithRad(closestApproachDist);
     overlapDistSet.push_back(overlapDists);
-    // calculate all inter-molcular distances for the scattering model
+    // calculate all inter-molecular distances for the scattering model
     double maxDistTemp;
     std::vector<double>  molDistsTmp;
     //std::vector<double> solDistsTmp;
     //std::vector<double>  solMolDistsTmp;
     std::vector<double> meanHydrophilicDistsTmp;
     int molSizeTmp,noSolTmp;
-    //std::cout<<i<<" "<<" here? \n";
     double hydroPhobicPackingMeasure;
     generateAllDistances(mol[i],hydrationShells[i],molDistsTmp,solDists[i],solMolDists[i],meanHydrophilicDistsTmp,molSizeTmp,noSolTmp,maxDistTemp,hydroPhobicPackingMeasure);
     molDists.push_back(molDistsTmp);
@@ -261,7 +263,7 @@ int main( int argc, const char* argv[] )
     hydrophobicPackingMeasures.push_back(hydroPhobicPackingMeasure);
   }
    
-  //fine the biggets distance to slect bing size
+  //find the biggest distance to select bin size
   double maxDist = *std::max_element(std::begin(maxDistList), std::end(maxDistList));
   double  kmin = std::atof(argv[9]);
   double  kmax = std::atof(argv[10]);
@@ -299,7 +301,6 @@ int main( int argc, const char* argv[] )
       std::cout<<line<<"\n";
       while(ss.eof()==false){
 	ss>>index;
-	std::cout<<"index ? "<<index<<"\n";
 	mixtureSet.push_back(index);
       }
       mixtureList.push_back(mixtureSet);
@@ -348,7 +349,6 @@ int main( int argc, const char* argv[] )
     strcat(molFile,"mol");
     strcat(molFile,str);
     strcat(molFile,".dat");
-    std::cout<<"file ? "<<scatterFile<<"\n";
     std::vector<std::vector<point> > crds =mol[0].getCoordinates();
     localWrithe lw;
     lw.DIDownSampleAbsWrite(crds,absWrFile);
@@ -362,10 +362,10 @@ int main( int argc, const char* argv[] )
 
    apply penalties which are "un protein like". Currently we are using
 
-     i) a very strict overlap penalty which exponetiallp penalises non local sections coming close than 4 A.
-     ii) A distance constraint measure, which is only active if the user inputs a set of distance consrtrainst like contact predictions.
-     iii) A hydrophic covering measure which is very much work in progress but the aim is to make sure there isn't excessive hydrophbic expose 
-      to be implemented soon iv) A writhe penalty to ensure the moelule doesn't become too disentangled.
+    i) a very strict overlap penalty which exponetially penalises non local sections coming closer than 4A.
+    ii) A distance constraint measure, which is only active if the user inputs a set of distance constraints like contact predictions.
+    ** ToDo iii) A hydrophic covering measure to make sure there isn't excessive hydrophobic exposure ** 
+    iv) A writhe penalty to ensure the molecule doesn't become too disentangled.
   
    **************************************************************/
   
@@ -380,7 +380,7 @@ int main( int argc, const char* argv[] )
 
   scatterFit =scatterFit + overlapPenalty;
 
-  // add any additional constrainst to the overall fitness based on distance constraints (should rename as its not necssarily Lennard-Jones)
+  // add any additional constraints to the overall fitness based on distance constraints **ToDo rename as its not necessarily Lennard-Jones**
 
   double contactPredPen=0.0;
   for(int i=0;i<mol.size();i++){
@@ -391,7 +391,7 @@ int main( int argc, const char* argv[] )
   
   double hydrationPenalisation=0.0;
   
-  // penalise any excessive hydraion packing (too many solvents close to a hydrophobic amino acid.
+  // penalise any excessive hydration packing (too many solvents close to a hydrophobic amino acid)
 
   for(int i=0;i<mol.size();i++){
     hydrationPenalisation =hydrationPenalisation + getHydrophobicPackingPenalty(hydrophobicPackingMeasures[i]);
