@@ -43,7 +43,7 @@ std::vector<point> ktlMolecule::getCoordinatesSection(int i){
 }
 
 int ktlMolecule::getSubsecSize(int sec){
-  // the minus 1 is becasue the labellingnumbers are 1,2,3 e.t.c but for chainList 1 is at index0
+  // the minus 1 is because the labelling numbers are 1,2,3 e.t.c but for chainList 1 is at index0
   return chainList[sec-1].second-chainList[sec-1].first+1;
 }
 
@@ -62,7 +62,7 @@ std::vector<std::pair<std::string,int> > ktlMolecule::getNameSizeListOfSection(i
 }
 
 double ktlMolecule::maxNeighbourDistSec(int &sec){
-  // the minus 1 is becasue the labellingnumbers are 1,2,3 e.t.c but for chainList 1 is at index0
+  // the minus 1 is because the labelling numbers are 1,2,3 e.t.c but for chainList 1 is at index0
   double dmax=0.0;
   for(int i = chainList[sec-1].first;i<= chainList[sec-1].second;i++){
     for(int j=0;j<coords[i].size();j++){      double d;
@@ -512,7 +512,6 @@ void ktlMolecule::readInMolWithBackboneLenJ(const char* filename,int chainNo,int
 
   std::ifstream myfile;
   std::ifstream myfileLenJ;
-  std::cout<<"man is bare in this routine "<<fieldloc<<"\n";
   myfile.open(fieldloc);
   myfileLenJ.open(LenJFileName);
   //get past the first line
@@ -669,7 +668,7 @@ void ktlMolecule::readInSequence(const char* filename,double &rmin,double &rmax,
   std::vector<std::string> aminoType;
   int noChains;
   if(myfile.is_open()) {
-    // read in the first line which tells us howmany chains there are
+    // read in the first line which tells us how many chains there are
     std::getline(myfile,chainNo);
     std::stringstream ss(chainNo);
     ss>>noChains;
@@ -767,7 +766,7 @@ void ktlMolecule::readInSequence(const char* filename,double &rmin,double &rmax,
 	std::cout<<nameSizeList[iv].first<<" "<<nameSizeList[iv].second<<"\n";
 	}*/
     }
-  //don't forget to set the random moelcule parameets
+  //don't forget to set the random molecule parameters
   rmg.setParams(rmin,rmax,lmin);
 }else{
     // here no sequence secondary predictions provided, will just assume one large linker
@@ -795,11 +794,9 @@ void ktlMolecule::readInCoordinates(const char* filename){
 	    currNoMols++;
 	    secondarySec.push_back(p);
 	    if(currNoMols==noInSection){
-	      // std::cout<<" this big pushed back"<<secondarySec.size()<<"\n";
 	      coords.push_back(secondarySec);
 	      secondarySec.clear();
 	      waitToFill=false;
-	      //std::cout<<"here?\n";
 	    }
 	  } 
 	}
@@ -813,7 +810,6 @@ void ktlMolecule::readInCoordinates(const char* filename){
 
 void ktlMolecule::readInSequenceWBackbone(const char* filename,int chainNo,const char* backbonename){
   int npts;
-  std::cout<<"all up in this routine\n";
   char fieldloc[1000]={};
   strcpy(fieldloc,"/home/rdata/ktch24/c++Molecule/calphaData/");
   strcat(fieldloc,filename);
@@ -830,7 +826,6 @@ void ktlMolecule::readInSequenceWBackbone(const char* filename,int chainNo,const
   std::ifstream myfile;
   std::string output;
   std::string outputBackbone;
-  //std::cout<<"in sequence ? "<<fieldloc<<"\n";
   myfile.open(fieldloc);
   std::ifstream myfileBackbone;
   myfileBackbone.open(backbonename);
@@ -920,7 +915,7 @@ void ktlMolecule::readInSequenceWBackbone(const char* filename,int chainNo,const
 
 
 
-// reads in just the secondary structure, not the coordinates themselevs, used for a from PDB secondary stcuture prediction
+// reads in just the secondary structure, not the coordinates themselevs, used for a from PDB secondary stucture prediction
 
 void ktlMolecule::readInMolNmer(const char* filename,std::vector<int> &molIndicies,int isRand,double &rmin,double &rmax,double &lmin){
   rmg.setParams(rmin,rmax,lmin);

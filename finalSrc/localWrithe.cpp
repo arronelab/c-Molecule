@@ -324,12 +324,12 @@ double localWrithe::getWrithe(std::vector<point>& list){
 	derivList(list);
 	FillDensityList();
 	getListTurnPts(tanlist);
-	// first add the main quaratures due to the indiviudal secttions separted by turning points
+	// first add the main quadratures due to the indiviudal sections separted by turning points
 	for(int i=0;i<turnlist.size()-1;i=i+2){
 		double dummy = writhepl;
 		SimpsonsRule(turnlist[i],turnlist[i+1]);
 	}
-	// add any required interpolation arouns the turning points;
+	// add any required interpolation around the turning points;
 	for(int j=1;j<turnlist.size()-1;j=j+2){
 		addInterpolatedTan(tanlist[turnlist[j]],densityList[turnlist[j]],tanlist[turnlist[j+1]],densityList[turnlist[j+1]],writhepl);
 	}
@@ -349,12 +349,12 @@ double localWrithe::getWritheLocal(std::vector<point>& list){
 	derivList(list);
 	FillDensityList();
 	getListTurnPts(tanlist);
-	// first add the main quaratures due to the indiviudal secttions separted by turning points
+	// first add the main quadratures due to the indiviudal sections separated by turning points
 	for(int i=0;i<turnlist.size()-1;i=i+2){
 		double dummy = writhepl;
 		SimpsonsRule(turnlist[i],turnlist[i+1]);
 	}
-	// add any required interpolation arouns the turning points;
+	// add any required interpolation around the turning points;
 	for(int j=1;j<turnlist.size()-1;j=j+2){
 		addInterpolatedTanLocal(tanlist[turnlist[j]],densityList[turnlist[j]],tanlist[turnlist[j+1]],densityList[turnlist[j+1]],writhepl);
 	}
@@ -377,7 +377,7 @@ std::vector<double> localWrithe::getWritheGen(std::vector<point>& list){
 	       pr.first=i+1;
 	     }
 	  }else{
-	    //here we have foudn one tp
+	    //here we have found one tp
 	    if(prod>0){
 	      isFirst=true;
 	      pr.second=i+2;
@@ -398,13 +398,13 @@ std::vector<double> localWrithe::getWritheGen(std::vector<point>& list){
 	};
 	FillDensityList();
 	 getListTurnPts(tanlist);
-	// first add the main quaratures due to the indiviudal secttions separted by turning points
+	// first add the main quadratures due to the individual sections separated by turning points
 	for(int i=0;i<turnlist.size()-1;i=i+2){
 		double dummy = writhepl;
 		SimpsonsRule(turnlist[i],turnlist[i+1]);
 	}
 	double actualWrithepl = writhepl*(1.0/(2.0*PI));
-	// add any required interpolation arouns the turning points;
+	// add any required interpolation around the turning points;
 	for(int j=1;j<turnlist.size()-1;j=j+2){
 		addInterpolatedTan(tanlist[turnlist[j]],densityList[turnlist[j]],tanlist[turnlist[j+1]],densityList[turnlist[j+1]],writhepl);
 	}
@@ -444,7 +444,7 @@ std::vector<double> localWrithe::getWritheGenClosed(std::vector<point>& list){
 	       pr.first=i+1;
 	     }
 	  }else{
-	    //here we have foudn one tp
+	    //here we have found one tp
 	    if(prod>0){
 	      isFirst=true;
 	      pr.second=i+2;
@@ -465,7 +465,7 @@ std::vector<double> localWrithe::getWritheGenClosed(std::vector<point>& list){
 	};
 	FillDensityList();
 	reconstructCurve(list);
-	// redo the turn pt fining
+	// redo the turning point finding
 	dlist.clear();
 	 tanlist.clear();
 	 tderiv.clear();
@@ -476,13 +476,13 @@ std::vector<double> localWrithe::getWritheGenClosed(std::vector<point>& list){
 	 derivList(list);
 	 FillDensityList();
 	 getListTurnPts(tanlist);
-	// first add the main quaratures due to the indiviudal secttions separted by turning points 
+	// first add the main quadratures due to the individual sections separated by turning points 
 	for(int i=0;i<turnlist.size()-1;i=i+2){
 		double dummy = writhepl;
 		SimpsonsRule(turnlist[i],turnlist[i+1]);
 	}
 	double actualWrithepl = writhepl*(1.0/(2.0*PI));
-	// add any required interpolation arouns the turning points;
+	// add any required interpolation around the turning points;
 	for(int j=1;j<turnlist.size()-1;j=j+2){
 		addInterpolatedTan(tanlist[turnlist[j]],densityList[turnlist[j]],tanlist[turnlist[j+1]],densityList[turnlist[j+1]],writhepl);
 	}
@@ -491,7 +491,7 @@ std::vector<double> localWrithe::getWritheGenClosed(std::vector<point>& list){
 	std::vector<std::pair<int,int> > pairedTurnList = makeTurnForNonLocal();
 	mutualWind2 mw;
 	std::vector<int> integerWindings =mw.getIntegerWindingsClosed(list,tanlist,pairedTurnList);
-	// get end anngle sign +1 or -1
+	// get end angle sign +1 or -1
 	point tan1 = tanlist[0];
 	point tan2 = tanlist[tanlist.size()-1];
 	//std::cout<<tanlist.size()<<"\n";
@@ -547,7 +547,7 @@ std::vector<double> localWrithe::getWritheGenSmooth(std::vector<point>& list){
 	       pr.first=i+1;
 	     }
 	  }else{
-	    //here we have foudn one tp
+	    //here we have found one tp
 	    if(prod>0){
 	      isFirst=true;
 	      pr.second=i+2;
@@ -586,13 +586,13 @@ std::vector<double> localWrithe::getWritheGenSmooth(std::vector<point>& list){
 	FillDensityList();
 	getListTurnPts(tanlist);
 	//check for points of inflection
-	// first add the main quaratures due to the indiviudal secttions separted by turning points
+	// first add the main quadratures due to the individual sections separated by turning points
 	for(int i=0;i<turnlist.size()-1;i=i+2){
 		double dummy = writhepl;
 		SimpsonsRule(turnlist[i],turnlist[i+1]);
 	}
 	 double actualWrithepl = writhepl*(1.0/(2.0*PI));
-	 // add any required interpolation arouns the turning points;
+	 // add any required interpolation around the turning points;
  	for(int j=1;j<turnlist.size()-1;j=j+2){
 	   addInterpolatedTan(tanlist[turnlist[j]],densityList[turnlist[j]],tanlist[turnlist[j+1]],densityList[turnlist[j+1]],writhepl);
 	 }
@@ -635,7 +635,7 @@ std::vector<double> localWrithe::getWritheGenStandard(std::vector<point>& list){
 	       pr.first=i+1;
 	     }
 	  }else{
-	    //here we have foudn one tp
+	    //here we have found one tp
 	    if(prod>0){
 	      isFirst=true;
 	      pr.second=i+2;
@@ -656,12 +656,12 @@ std::vector<double> localWrithe::getWritheGenStandard(std::vector<point>& list){
 	};
 	FillDensityList();
 	getListTurnPts(tanlist);
-	// first add the main quaratures due to the indiviudal secttions separted by turning points
+	// first add the main quadratures due to the individual sections separated by turning points
 	for(int i=0;i<turnlist.size()-1;i=i+2){
 		double dummy = writhepl;
 		SimpsonsRule(turnlist[i],turnlist[i+1]);
 	}
-	double actualWrithepl = writhepl*(1.0/(2.0*PI));	// add any required interpolation arouns the turning points;
+	double actualWrithepl = writhepl*(1.0/(2.0*PI));	// add any required interpolation around the turning points;
 	for(int j=1;j<turnlist.size()-1;j=j+2){
 		addInterpolatedTan(tanlist[turnlist[j]],densityList[turnlist[j]],tanlist[turnlist[j+1]],densityList[turnlist[j+1]],writhepl);
 	}
@@ -714,7 +714,7 @@ std::vector<double> localWrithe::getWritheGenStandardSmooth(std::vector<point>& 
 	       pr.first=i+1;
 	     }
 	  }else{
-	    //here we have foudn one tp
+	    //here we have found one tp
 	    if(prod>0){
 	      isFirst=true;
 	      pr.second=i+2;
@@ -734,7 +734,7 @@ std::vector<double> localWrithe::getWritheGenStandardSmooth(std::vector<point>& 
 	  };
 	};
 	reconstructCurve(list);
-	// redo the turn pt fining
+	// redo the turn pt finding
 	/*std::ofstream ofile;
 	ofile.open("testCurve.dat");
 	for(int i=0;i<list.size();i++){
@@ -751,13 +751,13 @@ std::vector<double> localWrithe::getWritheGenStandardSmooth(std::vector<point>& 
 	 derivList(list);
 	 FillDensityList();
 	 getListTurnPts(tanlist);
-	 // first add the main quaratures due to the indiviudal secttions separted by turning points
+	 // first add the main quadratures due to the individual sections separated by turning points
 	for(int i=0;i<turnlist.size()-1;i=i+2){
 		double dummy = writhepl;
 		SimpsonsRule(turnlist[i],turnlist[i+1]);
 	}
 	double actualWrithepl = writhepl*(1.0/(2.0*PI));
-	// add any required interpolation arouns the turning points;
+	// add any required interpolation around the turning points;
 	for(int j=1;j<turnlist.size()-1;j=j+2){
 		addInterpolatedTan(tanlist[turnlist[j]],densityList[turnlist[j]],tanlist[turnlist[j+1]],densityList[turnlist[j+1]],writhepl);
 	}
@@ -830,7 +830,7 @@ double localWrithe::getEndAngles(std::vector<point> &curvelist1,std::vector<poin
       double ydif = interpPoint.getY()-curvelist1[0].getY();
       double ang = angle(xdif,ydif);
       //std::cout<<"here angle "<<ang<<"\n";
-      // now figure our the indicator function of the second curve sections
+      // now figure out the indicator function of the second curve sections
       double sigma2;
       if((sublist[1].getZ()-sublist[0].getZ())>=0.0){
 	sigma2 = 1.0;
@@ -871,7 +871,7 @@ double localWrithe::getEndAngles(std::vector<point> &curvelist1,std::vector<poin
       double ydif = interpPoint.getY()-curvelist2[0].getY();
       double ang = angle(xdif,ydif);
       //std::cout<<"here angle 2 "<<ang<<"\n";
-      // now figure our the indicator function of the second curve sections
+      // now figure out the indicator function of the second curve sections
       double sigma2;
       if((sublist[1].getZ()-sublist[0].getZ())>=0.0){
 	sigma2 = 1.0;

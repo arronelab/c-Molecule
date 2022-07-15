@@ -431,7 +431,7 @@ int main( int argc, const char* argv[] )
   //set up loop parameters
   int k=0;
   
-  /* the vector noSections tells us how many subsections are in each moelcule
+  /* the vector noSections tells us how many subsections are in each molecule
      e.g. for a monomer/dimer mixture noSections[0]=1,noSections[1]=2.
    */
   
@@ -469,11 +469,13 @@ int main( int argc, const char* argv[] )
 	// Now loop over the secondary structures of the given unit or section
 
 	
-	// make a copy of the molecule (l)  we are looking at we are going to try all chanegs to this and see if changing it improves the best prediction overall.
+	// make a copy of the molecule (l)  we are looking at 
+  // we are going to try all changes to this and see if changing it improves the best prediction overall.
 	ktlMolecule molBest = mol[l];
-	/* we will need to store the "best distances" if we find an improved fit changing moelcule l
-	   In addition we store best verisons of things like overla, hyrdation fit, best percentage combination e.t.c.
-         */
+	/* 
+    We will need to store the "best distances" if we find an improved fit changing molecule l
+	  In addition we store best versisons of things like overlap, hyrdation fit, best percentage combination e.t.c.
+  */
 	std::vector<std::vector<double> > molDistsBest = molDists;
 	std::vector<std::vector<double> > solDistsBest = solDists;
 	std::vector<std::vector<double> > solMolDistsBest = solMolDists;
@@ -487,9 +489,9 @@ int main( int argc, const char* argv[] )
 
 	/*********
 
-		  Here wer loop over a subsection of moelcule l (it could be a dimer)
+	Here we loop over a subsection of molecule l (it could be a dimer)
 
-	 *******/
+	*********/
 	for(int j=0;j<mol[l].getSubsecSize(i)-1;j++){
 	  int totalIndex = netIndex+j;
 	  // in this if statement we check which secondary sections are being changed 
@@ -504,7 +506,7 @@ int main( int argc, const char* argv[] )
 	    int indexCh = totalIndex-netIndex;
 	    molCopy.changeMoleculeSingleMulti(indexCh,i);
 	    
-	    // this (checkCalphas) checks if there haven't been any rouge sections created (some occasional flaws in the procedure which are to be ironed out
+	    // this (checkCalphas) checks if there have been any rogue sections created (some occasional flaws in the procedure which are to be ironed out)
 	    bool cacaDist= molCopy.checkCalphas(i);
 	    
 	    // we are going to change the structure so we will need new distance sets
@@ -543,7 +545,7 @@ int main( int argc, const char* argv[] )
 
 	      std::vector<double> maxDistListTmp = maxDistList;
 	      std::vector<double> hydrophobicPackingMeasuresTmp = hydrophobicPackingMeasures;
-	      // very rarely the solvent produciton algo misbehaves so.  
+	      // very rarely the solvent production algo misbehaves so.  
 	      if(solDistsCopy[solDistsCopy.size()-1]<10000.0){
 		//new scattering
 		int newNoDistBins;
@@ -574,7 +576,7 @@ int main( int argc, const char* argv[] )
 		    percentageCombinationsTmp = mixtureList[iv];
 		  }
 		}
-		// apply the overlap penalties, only changing for one moelecule hence the if m==l
+		// apply the overlap penalties, only changing for one molecule hence the if m==l
 		double overlapPenaltyNew=0.0;
 		double contactPredPenNew=0.0;
 		for(int m=0;m<mol.size();m++){
@@ -589,7 +591,7 @@ int main( int argc, const char* argv[] )
 		//std::cout<<" test ? "<<l<<" "<<newScatterFit<<" "<<overlapPenaltyNew<<"\n";
 		newScatterFit = newScatterFit +  overlapPenaltyNew;
 		
-	      // finally add contract prediction value
+	  // finally add contract prediction value
 		newScatterFit =newScatterFit + contactPredPenNew;
 		double hydrationPenalisationNew=0.0;
 		
@@ -634,7 +636,7 @@ int main( int argc, const char* argv[] )
 		ed.writeRawMolScatteringToFileMultiple(molDistsTmp,solDistsTmp,solMolDistsTmp,molSize,noSolTmp,percentageCombinationsTmp,scatterFile);
 		molCopy.writeMoleculeToFile(molFile);
 		}
-		// check if we have improved overall, if so update the "best" fit, note that this best is based only on changeing this current molecule.
+		// check if we have improved overall, if so update the "best" fit, note that this best is based only on changing this current molecule.
 		double uProb = distributionR(generator1);
 		if(checkTransition(newScatterFit,scatterFitBest,uProb,k,noScatterFitSteps)){
 		  scatterFitBest  = newScatterFit;       
@@ -654,7 +656,7 @@ int main( int argc, const char* argv[] )
 	    }
 	  }
 	}
-	// after we have found what is best for moelcule l we see if we should update the whole ensemble
+	// after we have found what is best for molecule l we see if we should update the whole ensemble
 	double uProb = distributionR(generator1);
 	if(checkTransition(scatterFitBest,scatterFit,uProb,k,noScatterFitSteps)){
 	  scatterFit  = scatterFitBest;       
